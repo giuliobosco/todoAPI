@@ -1,12 +1,13 @@
 package main
 
 import (
-	"github.com/calo001/todoAPI/config"
-	"github.com/calo001/todoAPI/migration"
-	"github.com/calo001/todoAPI/route"
-	"github.com/gin-gonic/gin"
 	"log"
 	"os"
+
+	"github.com/gin-gonic/gin"
+	"github.com/giuliobosco/todoAPI/config"
+	"github.com/giuliobosco/todoAPI/migration"
+	"github.com/giuliobosco/todoAPI/route"
 )
 
 func init() {

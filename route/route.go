@@ -1,16 +1,16 @@
 package route
 
-IMPORT (
-	"github.com/giuliobosco/todoAPI/auth"
-	"github.com/giuliobosco/todoAPI/controller"
-	"github.com/gin-tonic/gin"
+import (
 	"log"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/giuliobosco/todoAPI/auth"
+	"github.com/giuliobosco/todoAPI/controller"
 )
 
-func SetupRoutes() *gin.Engine{
+func SetupRoutes() *gin.Engine {
 	router := gin.Default()
-
 	authMiddleware, err := auth.SetupAuth()
 
 	if err != nil {
@@ -18,21 +18,22 @@ func SetupRoutes() *gin.Engine{
 	}
 
 	router.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOk, "Welcome to my Todo App")
+		c.String(http.StatusOK, "Welcome to my Todo App")
 	})
 
-	v1:= router.Group("/v1")
+	v1 := router.Group("/v1")
 	{
 		v1.POST("/login", authMiddleware.LoginHandler)
-		v1.POST("/register", authMiddleware.RegisterEndPoint)
+
+		v1.POST("/register", controller.RegisterEndPoint)
 
 		todo := v1.Group("todo")
 		{
 			todo.POST("/create", authMiddleware.MiddlewareFunc(), controller.CreateTask)
 			todo.GET("/all", authMiddleware.MiddlewareFunc(), controller.FetchAllTask)
 			todo.GET("/get/:id", authMiddleware.MiddlewareFunc(), controller.FetchSingleTask)
-			todo.GET("/update/:id", authMiddleware.MiddlewareFunc(), controller.UpdateTask)
-			todo.GET("/delete/:id", authMiddleware.MiddlewareFunc(), controller.DeleteTask)
+			todo.PUT("/update/:id", authMiddleware.MiddlewareFunc(), controller.UpdateTask)
+			todo.DELETE("/delete/:id", authMiddleware.MiddlewareFunc(), controller.DeleteTask)
 		}
 	}
 
