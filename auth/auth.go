@@ -52,7 +52,7 @@ func identityHandler(c *gin.Context) interface{} {
 
 func authenticator(c *gin.Context) (interface{}, error) {
 	var loginVals model.User
-	if err := c.ShouldBind(&loginVals); err != nil {
+	if err := c.ShouldBindJSON(&loginVals); err != nil {
 		return "", jwtapple2.ErrMissingLoginValues
 	}
 
