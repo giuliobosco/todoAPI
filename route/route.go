@@ -1,14 +1,19 @@
+/*
+Package route create the routes of the API Server.
+*/
 package route
 
 import (
 	"log"
 	"net/http"
 
+	"todoAPI/auth"
+	"todoAPI/controller"
+
 	"github.com/gin-gonic/gin"
-	"github.com/giuliobosco/todoAPI/auth"
-	"github.com/giuliobosco/todoAPI/controller"
 )
 
+// SetupRoutes create the router of the API Engine.
 func SetupRoutes() *gin.Engine {
 	router := gin.Default()
 	authMiddleware, err := auth.SetupAuth()

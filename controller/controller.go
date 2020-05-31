@@ -3,12 +3,14 @@ package controller
 import (
 	"net/http"
 
+	"todoAPI/config"
+	"todoAPI/model"
+
 	jwtapple2 "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
-	"github.com/giuliobosco/todoAPI/config"
-	"github.com/giuliobosco/todoAPI/model"
 )
 
+// RegisterEndPoint registration API End Point
 func RegisterEndPoint(c *gin.Context) {
 	var user model.User
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -29,6 +31,7 @@ func RegisterEndPoint(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "User created successfully!"})
 }
 
+// CreateTask is the function for create a task
 func CreateTask(c *gin.Context) {
 	claims := jwtapple2.ExtractClaims(c)
 
@@ -51,6 +54,7 @@ func CreateTask(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "Task created successfully!", "task": todo})
 }
 
+// FetchAllTask is the function for fetch all tasks
 func FetchAllTask(c *gin.Context) {
 	claims := jwtapple2.ExtractClaims(c)
 
@@ -73,6 +77,7 @@ func FetchAllTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": todos})
 }
 
+// FetchSingleTask is the function for fetch a single task by id
 func FetchSingleTask(c *gin.Context) {
 	todoID := c.Param("id")
 
@@ -92,6 +97,7 @@ func FetchSingleTask(c *gin.Context) {
 	c.JSON(http.StatusOK, todo)
 }
 
+// UpdateTask is the function for update a task by id
 func UpdateTask(c *gin.Context) {
 	todoID := c.Param("id")
 
@@ -122,6 +128,7 @@ func UpdateTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Task updated successfully!", "task": todo})
 }
 
+// DeleteTask is the function for delete a task by id
 func DeleteTask(c *gin.Context) {
 	var todo model.Task
 	todoID := c.Param("id")

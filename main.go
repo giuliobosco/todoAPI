@@ -1,20 +1,24 @@
+// todoAPI Engine
 package main
 
 import (
 	"log"
 	"os"
 
+	"todoAPI/config"
+	"todoAPI/migration"
+	"todoAPI/route"
+
 	"github.com/gin-gonic/gin"
-	"github.com/giuliobosco/todoAPI/config"
-	"github.com/giuliobosco/todoAPI/migration"
-	"github.com/giuliobosco/todoAPI/route"
 )
 
+// Init initialize the application
 func init() {
 	db := config.Init()
 	migration.Migrate(db)
 }
 
+// main starts the app.
 func main() {
 	gin.SetMode(gin.ReleaseMode)
 
