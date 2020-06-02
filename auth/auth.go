@@ -11,6 +11,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const sExpire string = config.SExpire
+const sToken string = config.SToken
+
 // SetupAuth Sets-up the authentication middleware
 func SetupAuth() (*jwtapple2.GinJWTMiddleware, error) {
 	authMiddleware, err := jwtapple2.New(&jwtapple2.GinJWTMiddleware{
@@ -88,7 +91,7 @@ func unauthorized(c *gin.Context, code int, message string) {
 // loginResponse builds the response of success full login
 func loginResponse(c *gin.Context, code int, token string, expire time.Time) {
 	c.JSON(code, gin.H{
-		"expire": expire,
-		"token":  token,
+		sExpire: expire,
+		sToken:  token,
 	})
 }

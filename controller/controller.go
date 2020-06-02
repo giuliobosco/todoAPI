@@ -10,11 +10,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const sMessage string = config.SMessage
+const sError string = config.SError
+const sData string = config.SData
+const sTask string = config.STask
+
 // RegisterEndPoint registration API End Point
 func RegisterEndPoint(c *gin.Context) {
 	var user model.User
 	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
 		return
 	}
 
@@ -22,13 +27,13 @@ func RegisterEndPoint(c *gin.Context) {
 	config.GetDB().First(&userCheck, "username = ?", user.Username)
 
 	if userCheck.ID > 0 {
-		c.JSON(http.StatusConflict, gin.H{"message": "User already exists"})
+		c.JSON(http.StatusConflict, gin.H{sMessage: config.SUserExists})
 		return
 	}
 
 	config.GetDB().Save(&user)
 
-	c.JSON(http.StatusCreated, gin.H{"message": "User created successfully!"})
+	c.JSON(http.StatusCreated, gin.H{sMessage: config.SUserCreated})
 }
 
 // CreateTask is the function for create a task
@@ -39,19 +44,19 @@ func CreateTask(c *gin.Context) {
 	config.GetDB().Where("id = ?", claims[config.IdentityKey]).First(&user)
 
 	if user.ID <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user id"})
+		c.JSON(http.StatusBadRequest, gin.H{sError: config.SUserInvalid})
 		return
 	}
 
 	var todo model.Task
 	if err := c.ShouldBindJSON(&todo); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
 		return
 	}
 
 	todo.UserID = user.ID
 	config.GetDB().Save(&todo)
-	c.JSON(http.StatusCreated, gin.H{"message": "Task created successfully!", "task": todo})
+	c.JSON(http.StatusCreated, gin.H{sMessage: config.STaskCreated, sTask: todo})
 }
 
 // FetchAllTask is the function for fetch all tasks
@@ -62,7 +67,7 @@ func FetchAllTask(c *gin.Context) {
 	config.GetDB().Where("id = ?", claims[config.IdentityKey]).First(&user)
 
 	if user.ID <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user id"})
+		c.JSON(http.StatusBadRequest, gin.H{sError: config.SUserInvalid})
 		return
 	}
 
@@ -70,11 +75,11 @@ func FetchAllTask(c *gin.Context) {
 	config.GetDB().Where("user_id = ?", user.ID).Order("created_at desc").Find(&todos)
 
 	if len(todos) <= 0 {
-		c.JSON(http.StatusNotFound, gin.H{"message": "No tasks found!", "data": todos})
+		c.JSON(http.StatusNotFound, gin.H{sMessage: config.STaskNotFound, sData: todos})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": todos})
+	c.JSON(http.StatusOK, gin.H{sData: todos})
 }
 
 // FetchSingleTask is the function for fetch a single task by id
@@ -82,7 +87,7 @@ func FetchSingleTask(c *gin.Context) {
 	todoID := c.Param("id")
 
 	if len(todoID) <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid todo id"})
+		c.JSON(http.StatusBadRequest, gin.H{sError: config.STaskInvalid})
 		return
 	}
 
@@ -90,7 +95,7 @@ func FetchSingleTask(c *gin.Context) {
 	config.GetDB().First(&todo, todoID)
 
 	if todo.ID == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"message": "No todo found!"})
+		c.JSON(http.StatusNotFound, gin.H{sMessage: config.STaskNotFound})
 		return
 	}
 
@@ -102,13 +107,13 @@ func UpdateTask(c *gin.Context) {
 	todoID := c.Param("id")
 
 	if len(todoID) <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user id"})
+		c.JSON(http.StatusBadRequest, gin.H{sError: config.SUserInvalid})
 		return
 	}
 
 	var newTodo model.Task
 	if err := c.ShouldBindJSON(&newTodo); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
 		return
 	}
 
@@ -116,7 +121,7 @@ func UpdateTask(c *gin.Context) {
 	config.GetDB().First(&todo, todoID)
 
 	if todo.ID <= 0 {
-		c.JSON(http.StatusNotFound, gin.H{"message": "No task found!"})
+		c.JSON(http.StatusNotFound, gin.H{sMessage: config.STaskNotFound})
 		return
 	}
 
@@ -125,7 +130,7 @@ func UpdateTask(c *gin.Context) {
 
 	config.GetDB().First(&todo, todoID)
 
-	c.JSON(http.StatusOK, gin.H{"message": "Task updated successfully!", "task": todo})
+	c.JSON(http.StatusOK, gin.H{sMessage: config.STaskUpdated, sTask: todo})
 }
 
 // DeleteTask is the function for delete a task by id
@@ -134,17 +139,17 @@ func DeleteTask(c *gin.Context) {
 	todoID := c.Param("id")
 
 	if len(todoID) <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user id"})
+		c.JSON(http.StatusBadRequest, gin.H{sError: config.STaskNotFound})
 		return
 	}
 
 	config.GetDB().First(&todo, todoID)
 
 	if todo.ID == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"message": "No task found!"})
+		c.JSON(http.StatusNotFound, gin.H{sMessage: config.STaskNotFound})
 		return
 	}
 
 	config.GetDB().Delete(&todo)
-	c.JSON(http.StatusOK, gin.H{"message": "Task deleted successfully!", "task": todo})
+	c.JSON(http.StatusOK, gin.H{sMessage: config.STaskDeleted, sTask: todo})
 }

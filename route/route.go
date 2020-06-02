@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/giuliobosco/todoAPI/auth"
+	"github.com/giuliobosco/todoAPI/config"
 	"github.com/giuliobosco/todoAPI/controller"
 
 	"github.com/gin-gonic/gin"
@@ -23,7 +24,7 @@ func SetupRoutes() *gin.Engine {
 	}
 
 	router.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOK, "Welcome to my Todo App")
+		c.String(http.StatusOK, config.SWelcome)
 	})
 
 	v1 := router.Group("/v1")
