@@ -2,6 +2,8 @@ package config
 
 import (
 	"github.com/jinzhu/gorm"
+	mocket "github.com/selvatico/go-mocket"
+
 	// importing postgres for start open gorm connection
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
@@ -23,5 +25,16 @@ func Init() *gorm.DB {
 
 // GetDB returns the connection to the database.
 func GetDB() *gorm.DB {
+	return DB
+}
+
+// TestInit initialize the connection to the mock database driver for tests
+func TestInit() *gorm.DB {
+	mocket.Catcher.Register()
+	mocket.Catcher.Logging = true
+
+	db, _ := gorm.Open(mocket.DriverName, "connection_string")
+	DB = db
+
 	return DB
 }
