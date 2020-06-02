@@ -3,8 +3,8 @@ package controller
 import (
 	"net/http"
 
-	"todoAPI/config"
-	"todoAPI/model"
+	"github.com/giuliobosco/todoAPI/config"
+	"github.com/giuliobosco/todoAPI/model"
 
 	jwtapple2 "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"

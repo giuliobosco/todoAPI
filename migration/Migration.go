@@ -1,7 +1,7 @@
 package migration
 
 import (
-	"todoAPI/model"
+	"github.com/giuliobosco/todoAPI/model"
 
 	"github.com/jinzhu/gorm"
 )

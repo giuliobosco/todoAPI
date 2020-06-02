@@ -5,9 +5,9 @@ import (
 	"log"
 	"os"
 
-	"todoAPI/config"
-	"todoAPI/migration"
-	"todoAPI/route"
+	"github.com/giuliobosco/todoAPI/config"
+	"github.com/giuliobosco/todoAPI/migration"
+	"github.com/giuliobosco/todoAPI/route"
 
 	"github.com/gin-gonic/gin"
 )

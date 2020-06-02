@@ -7,8 +7,8 @@ import (
 	"log"
 	"net/http"
 
-	"todoAPI/auth"
-	"todoAPI/controller"
+	"github.com/giuliobosco/todoAPI/auth"
+	"github.com/giuliobosco/todoAPI/controller"
 
 	"github.com/gin-gonic/gin"
 )
