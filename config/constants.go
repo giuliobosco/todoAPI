@@ -2,6 +2,8 @@ package config
 
 import (
 	"os"
+
+	"github.com/giuliobosco/todoAPI/model"
 )
 
 var (
@@ -55,8 +57,7 @@ const (
 func BuildConfirmEmail(user model.User, smtpUsername string) []byte {
 	var link string = URL + "v1/confirm?email=" + user.Email + "&token=" + user.VerifyToken
 
-	return (
-		"To: " + user.Email + "\r\n" +
+	return []byte("To: " + user.Email + "\r\n" +
 		"From: " + smtpUsername + "\r\n" +
 		"Subject: TodoAPI: confirm you email address!\r\n" +
 		"\r\n" +
@@ -64,6 +65,5 @@ func BuildConfirmEmail(user model.User, smtpUsername string) []byte {
 		"Confirm your email address for todoAPI with the following link\r\n\r\n" +
 		link + "\r\n\r\n" +
 		"Thanks for using todoAPI\r\n" +
-		"The todoAPI team\r\n"
-	)
+		"The todoAPI team\r\n")
 }

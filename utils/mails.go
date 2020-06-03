@@ -5,6 +5,7 @@ import (
 	"net/smtp"
 	"os"
 
+	"github.com/giuliobosco/todoAPI/config"
 	"github.com/giuliobosco/todoAPI/model"
 )
 
