@@ -7,10 +7,14 @@ import (
 
 // User is the rapresentation of the user
 type User struct {
-	Base            // use base object as parent
-	Username string `json:"username"` // username of the user
-	Password string `json:"password"` // password of the user
-	Todos    []Task `json:"todos"`    // list of the todos of the user
+	Base               // use base object as parent
+	Email       string `json:"email"`     // username of the user
+	Password    string `json:"password"`  // password of the user
+	Firstname   string `json:"firstname"` // firstname of the user
+	Lastname    string `json:"lastname"`  // lastname of the user
+	VerifyToken string // verifyToken of the user
+	active      bool   `json:"active"` // active flag of the user
+	Todos       []Task `json:"todos"`  // list of the todos of the user
 }
 
 // Task is the rappresentation of a task
@@ -19,6 +23,7 @@ type Task struct {
 	Title       string `json:"title"`       // title of the task
 	Description string `json:"description"` // description of the task
 	UserID      uint   `json:"userid"`      // id of the user owner of the task
+	Completed   bool   `json:"completed"`   // completed task if true
 }
 
 // Base is the basic object with basic components
