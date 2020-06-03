@@ -3,6 +3,7 @@ package utils
 import (
 	"errors"
 
+	"github.com/giuliobosco/todoAPI/config"
 	"github.com/giuliobosco/todoAPI/model"
 
 	"github.com/badoux/checkmail"
@@ -52,4 +53,40 @@ func UserValidator(user model.User) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func ConfirmUserValidator(m map[string][]string) (*model.User, error) {
+	var missing []string
+
+	if m["email"] == nil || len(m["email"]) == 0 {
+		missing = append(missing, "email")
+	}
+	if m["token"] == nil || len(m["token"]) == 0 {
+		missing = append(missing, "token")
+	}
+
+	if len(missing) > 0 {
+		var errorString string = "Missing: "
+
+		for i, m := range missing {
+			if i > 0 {
+				errorString += ","
+			}
+			errorString += " " + m
+		}
+
+		return nil, errors.New(errorString)
+	}
+
+	e := m["email"][0]
+	t := m["token"][0]
+
+	var userCheck model.User
+	config.GetDB().Where("email = ? AND verify_token = ?", e, t).First(&userCheck)
+
+	if userCheck.ID == 0 {
+		return nil, errors.New("Not valid request")
+	}
+
+	return &userCheck, nil
 }

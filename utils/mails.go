@@ -16,7 +16,7 @@ var (
 	smtpPassword = os.Getenv("SMTP_PASSWORD")
 )
 
-func UserConfirmation(user model.User) {
+func UserConfirmationSendMail(user model.User) {
 	auth := smtp.PlainAuth("", smtpUsername, smtpPassword, smtpServer)
 
 	// Here we do it all: connect to our server, set up a message and send it

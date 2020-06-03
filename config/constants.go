@@ -30,6 +30,8 @@ const (
 	SUserInvalid = "Invalid user id"
 	// SUserFailCreation is the user creation internal error string
 	SUserFailCreation = "Error while creating user"
+	// SUserConfirmed is the user confirmed string
+	SUserConfirmed = "User confirmed!"
 	// STaskCreated is the task created string
 	STaskCreated = "Task created successfully!"
 	// STaskNotFound is the task not found string

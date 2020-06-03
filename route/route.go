@@ -33,6 +33,8 @@ func SetupRoutes() *gin.Engine {
 
 		v1.POST("/register", controller.RegisterEndPoint)
 
+		v1.GET("/confirm", controller.ConfirmUser)
+
 		todo := v1.Group("todo")
 		{
 			todo.POST("/create", authMiddleware.MiddlewareFunc(), controller.CreateTask)

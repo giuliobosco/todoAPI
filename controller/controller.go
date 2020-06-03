@@ -42,12 +42,29 @@ func RegisterEndPoint(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{sError: config.SUserFailCreation})
+		return
 	}
 
 	config.GetDB().Save(&user)
-	utils.UserConfirmation(user)
+	utils.UserConfirmationSendMail(user)
 
 	c.JSON(http.StatusCreated, gin.H{sMessage: config.SUserCreated})
+}
+
+// ConfirmUser is the function for confirm a user
+func ConfirmUser(c *gin.Context) {
+	p := c.Request.URL.Query()
+	user, err := utils.ConfirmUserValidator(p)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
+		return
+	}
+
+	config.GetDB().Model(&user).Update("active", true)
+	config.GetDB().Model(&user).Update("verify_token", "")
+
+	c.JSON(http.StatusOK, gin.H{sMessage: config.SUserConfirmed})
 }
 
 // CreateTask is the function for create a task
