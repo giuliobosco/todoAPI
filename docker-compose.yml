@@ -11,6 +11,12 @@ services:
       - postgres
     ports:
       - 8080:8080
+    environment:
+      URL: "http://localhost:8080/"
+      SMTP_SERVER: "mail.example.com"
+      SMTP_PORT: "25"
+      SMTP_USERNAME: "mail@example.com"
+      SMTP_PASSWORD: "secret"
   postgres:
     image: postgres
     container_name: postgrestodo
