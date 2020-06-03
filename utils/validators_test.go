@@ -15,7 +15,7 @@ func TestEmailValidator(t *testing.T) {
 	assert.True(t, ok)
 
 	// not working email
-	emails := []string{"giuliobva", "giuliobva@", "@gmail.com", ".@gmail.com", "giuliobva@.", "giuliobva@f.s", "s@gmail.com"}
+	emails := []string{"giuliobva", "giuliobva@", "@gmail.com", "giuliobva@."}
 	for _, e := range emails {
 		ok, _ = EmailValidator(e)
 		assert.False(t, ok)

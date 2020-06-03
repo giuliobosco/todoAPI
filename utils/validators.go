@@ -14,13 +14,6 @@ func EmailValidator(email string) (bool, error) {
 		return false, err
 	}
 
-	if err := checkmail.ValidateHost(email); err != nil {
-		if smtpErr, ok := err.(checkmail.SmtpError); ok && err != nil {
-			return false, smtpErr
-		}
-		return false, err
-	}
-
 	return true, nil
 }
 
@@ -37,7 +30,7 @@ func UserValidator(user model.User) (bool, error) {
 	if len(user.Firstname) == 0 {
 		missing = append(missing, "Firstname")
 	}
-	if len(user.Firstname) == 0 {
+	if len(user.Lastname) == 0 {
 		missing = append(missing, "Lastname")
 	}
 
