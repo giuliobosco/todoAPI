@@ -32,6 +32,8 @@ const (
 	SUserFailCreation = "Error while creating user"
 	// SUserConfirmed is the user confirmed string
 	SUserConfirmed = "User confirmed!"
+	// SUserNotConfirmed is the user not confirmed string
+	SUserNotConfirmed = "User not confirmed!"
 	// STaskCreated is the task created string
 	STaskCreated = "Task created successfully!"
 	// STaskNotFound is the task not found string

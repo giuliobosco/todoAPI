@@ -2,6 +2,7 @@
 package auth
 
 import (
+	"errors"
 	"time"
 
 	"github.com/giuliobosco/todoAPI/config"
@@ -67,6 +68,13 @@ func authenticator(c *gin.Context) (interface{}, error) {
 
 	if result.ID == 0 {
 		return nil, jwtapple2.ErrFailedAuthentication
+	}
+
+	if !result.Active {
+		return nil, errors.New(config.SUserNotConfirmed)
+	}
+	if len(result.VerifyToken) > 0 {
+		config.GetDB().Model(&result).Update("verify_token", "")
 	}
 
 	return &result, nil
