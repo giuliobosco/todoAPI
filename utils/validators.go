@@ -3,6 +3,7 @@ package utils
 import (
 	"errors"
 
+	"github.com/gin-gonic/gin"
 	"github.com/giuliobosco/todoAPI/config"
 	"github.com/giuliobosco/todoAPI/model"
 
@@ -89,4 +90,57 @@ func ConfirmUserValidator(m map[string][]string) (*model.User, error) {
 	}
 
 	return &userCheck, nil
+}
+
+type PasswordRecovery struct {
+	Email       string `json:"email"`
+	Token       string `json:"token"`
+	OldPassword string `json:"old_password"`
+	NewPassword string `json:"new_password"`
+}
+
+func PasswordRecoveryValidator(c *gin.Context) (*model.User, error) {
+	var missing []string
+
+	var pr PasswordRecovery
+	if err := c.ShouldBindJSON(&pr); err != nil {
+		return nil, err
+	}
+
+	if len(pr.Email) == 0 {
+		missing = append(missing, "email")
+	}
+	if len(pr.Token) == 0 {
+		missing = append(missing, "token")
+	}
+	if len(pr.OldPassword) == 0 {
+		missing = append(missing, "old_password")
+	}
+	if len(pr.NewPassword) == 0 {
+		missing = append(missing, "new_password")
+	}
+
+	if len(missing) > 0 {
+		var errorString = "Missing: "
+
+		for i, m := range missing {
+			if i > 0 {
+				errorString += ","
+			}
+			errorString += " " + m
+		}
+
+		return nil, errors.New(errorString)
+	}
+
+	var user model.User
+	config.GetDB().Where("email = ? AND verify_token = ? AND password = ?", pr.Email, pr.Token, pr.OldPassword).First(&user)
+
+	if user.ID == 0 {
+		return nil, errors.New(config.SUserPasswordRecoveryError)
+	}
+
+	user.Password = pr.NewPassword
+
+	return &user, nil
 }

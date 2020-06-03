@@ -27,3 +27,15 @@ func UserConfirmationSendMail(user model.User) {
 		log.Fatal(err)
 	}
 }
+
+func UserPasswordRecoverySendMail(user model.User) {
+	auth := smtp.PlainAuth("", smtpUsername, smtpPassword, smtpServer)
+
+	// Here we do it all: connect to our server, set up a message and send it
+	to := []string{user.Email}
+	msg := config.BuildPasswordRecovery(user, smtpUsername)
+	err := smtp.SendMail(smtpServer+":"+smtpPort, auth, user.Email, to, msg)
+	if err != nil {
+		log.Fatal(err)
+	}
+}

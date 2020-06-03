@@ -35,6 +35,10 @@ func SetupRoutes() *gin.Engine {
 
 		v1.GET("/confirm", controller.ConfirmUser)
 
+		v1.GET("/requestPasswordRecovery", controller.RequestPasswordRecovery)
+
+		v1.POST("/executePasswordRecovery", controller.ExecutePasswordRecovery)
+
 		todo := v1.Group("todo")
 		{
 			todo.POST("/create", authMiddleware.MiddlewareFunc(), controller.CreateTask)

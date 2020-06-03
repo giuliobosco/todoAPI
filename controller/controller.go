@@ -67,6 +67,47 @@ func ConfirmUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{sMessage: config.SUserConfirmed})
 }
 
+func RequestPasswordRecovery(c *gin.Context) {
+	p := c.Request.URL.Query()
+
+	if p["email"] == nil || len(p["email"]) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{sError: "Missing: email"})
+		return
+	}
+
+	var user model.User
+	config.GetDB().Where("email = ?", p["email"][0]).First(&user)
+
+	if user.ID <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{sError: config.SUserInvalid})
+		return
+	}
+
+	var err error
+	user.VerifyToken, err = utils.GenerateRandomStringURLSafe(config.TokenLength)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{sError: config.SUserPasswordRecoveryError})
+		return
+	}
+
+	config.GetDB().Model(&user).Update(&user)
+	utils.UserPasswordRecoverySendMail(user)
+
+	c.JSON(http.StatusOK, gin.H{sMessage: config.SUserPasswordRecoveryMailSent})
+}
+
+func ExecutePasswordRecovery(c *gin.Context) {
+	user, err := utils.PasswordRecoveryValidator(c)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
+	}
+
+	config.GetDB().Model(&user).Update(&user)
+
+	c.JSON(http.StatusOK, gin.H{sMessage: config.SUserPasswordUpdated})
+}
+
 // CreateTask is the function for create a task
 func CreateTask(c *gin.Context) {
 	claims := jwtapple2.ExtractClaims(c)

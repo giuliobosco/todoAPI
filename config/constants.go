@@ -34,6 +34,12 @@ const (
 	SUserConfirmed = "User confirmed!"
 	// SUserNotConfirmed is the user not confirmed string
 	SUserNotConfirmed = "User not confirmed!"
+	// SUserPasswordRecoveryError is the user passwor recovery error string
+	SUserPasswordRecoveryError = "Error while recovery user password."
+	// SUserPasswordRecoveryMailSent is the user password recovery mail sent
+	SUserPasswordRecoveryMailSent = "User password recovery mail sent."
+	// SUserPasswordUpdated
+	SUserPasswordUpdated = "User password updated"
 	// STaskCreated is the task created string
 	STaskCreated = "Task created successfully!"
 	// STaskNotFound is the task not found string
@@ -67,6 +73,20 @@ func BuildConfirmEmail(user model.User, smtpUsername string) []byte {
 		"\r\n" +
 		"Hi " + user.Firstname + " " + user.Lastname + ",\r\n\r\n" +
 		"Confirm your email address for todoAPI with the following link\r\n\r\n" +
+		link + "\r\n\r\n" +
+		"Thanks for using todoAPI\r\n" +
+		"The todoAPI team\r\n")
+}
+
+func BuildPasswordRecovery(user model.User, smtpUsername string) []byte {
+	var link string = URL + "v1/executePasswordRecovery?email=" + user.Email + "&token=" + user.VerifyToken
+
+	return []byte("To: " + user.Email + "\r\n" +
+		"From: " + smtpUsername + "\r\n" +
+		"Subject: TodoAPI: Password recovery link!\r\n" +
+		"\r\n" +
+		"Hi " + user.Firstname + " " + user.Lastname + ",\r\n\r\n" +
+		"Use the following link for recovery your password\r\n\r\n" +
 		link + "\r\n\r\n" +
 		"Thanks for using todoAPI\r\n" +
 		"The todoAPI team\r\n")
