@@ -9,6 +9,8 @@ const (
 	SWelcome = "Welcome to my Todo App"
 	// SUserExists is the user already exists string
 	SUserExists = "User already exists"
+	// SUserMissingParams is the user missing parameters string
+	SUserMissingParams = "Missing Username or password"
 	// SUserCreated is the user created string
 	SUserCreated = "User created successfully!"
 	// SUserInvalid is the invalid user id string

@@ -22,6 +22,10 @@ func RegisterEndPoint(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
 		return
 	}
+	if len(user.Username) == 0 || len(user.Password) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{sError: config.SUserMissingParams})
+		return
+	}
 
 	var userCheck model.User
 	config.GetDB().First(&userCheck, "username = ?", user.Username)
