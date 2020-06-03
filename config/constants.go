@@ -1,6 +1,10 @@
 package config
 
 const (
+	// URL application url
+	URL = "http://localhost:8080"
+	// TokenLength is the length of the user activation token
+	TokenLength = 64
 	// IdentityKey represent the parameter used as connection key.
 	IdentityKey = "id"
 	// Key is the internal secret key of the API Engine.
@@ -15,6 +19,8 @@ const (
 	SUserCreated = "User created successfully!"
 	// SUserInvalid is the invalid user id string
 	SUserInvalid = "Invalid user id"
+	// SUserFailCreation is the user creation internal error string
+	SUserFailCreation = "Error while creating user"
 	// STaskCreated is the task created string
 	STaskCreated = "Task created successfully!"
 	// STaskNotFound is the task not found string

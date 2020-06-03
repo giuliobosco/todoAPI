@@ -5,6 +5,7 @@ import (
 
 	"github.com/giuliobosco/todoAPI/config"
 	"github.com/giuliobosco/todoAPI/model"
+	"github.com/giuliobosco/todoAPI/utils"
 
 	jwtapple2 "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
@@ -22,20 +23,29 @@ func RegisterEndPoint(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
 		return
 	}
-	if len(user.Username) == 0 || len(user.Password) == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{sError: config.SUserMissingParams})
+	if ok, err := utils.UserValidator(user); !ok {
+		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
 		return
 	}
 
 	var userCheck model.User
-	config.GetDB().First(&userCheck, "username = ?", user.Username)
+	config.GetDB().First(&userCheck, "email = ?", user.Email)
 
 	if userCheck.ID > 0 {
 		c.JSON(http.StatusConflict, gin.H{sMessage: config.SUserExists})
 		return
 	}
 
+	user.Active = false
+	var err error
+	user.VerifyToken, err = utils.GenerateRandomStringURLSafe(config.TokenLength)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{sError: config.SUserFailCreation})
+	}
+
 	config.GetDB().Save(&user)
+	utils.UserConfirmation(user)
 
 	c.JSON(http.StatusCreated, gin.H{sMessage: config.SUserCreated})
 }
@@ -131,6 +141,7 @@ func UpdateTask(c *gin.Context) {
 
 	config.GetDB().Model(&todo).Update("title", newTodo.Title)
 	config.GetDB().Model(&todo).Update("description", newTodo.Description)
+	config.GetDB().Model(&todo).Update("completed", newTodo.Completed)
 
 	config.GetDB().First(&todo, todoID)
 

@@ -63,7 +63,7 @@ func authenticator(c *gin.Context) (interface{}, error) {
 	}
 
 	var result model.User
-	config.GetDB().Where("username = ? AND password = ?", loginVals.Username, loginVals.Password).First(&result)
+	config.GetDB().Where("email = ? AND password = ?", loginVals.Email, loginVals.Password).First(&result)
 
 	if result.ID == 0 {
 		return nil, jwtapple2.ErrFailedAuthentication
