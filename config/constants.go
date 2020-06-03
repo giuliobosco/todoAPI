@@ -1,8 +1,15 @@
 package config
 
-const (
+import (
+	"os"
+)
+
+var (
 	// URL application url
-	URL = "http://localhost:8080"
+	URL = os.Getenv("URL")
+)
+
+const (
 	// TokenLength is the length of the user activation token
 	TokenLength = 64
 	// IdentityKey represent the parameter used as connection key.
@@ -44,3 +51,19 @@ const (
 	// SToken is the token string
 	SToken = "token"
 )
+
+func BuildConfirmEmail(user model.User, smtpUsername string) []byte {
+	var link string = URL + "v1/confirm?email=" + user.Email + "&token=" + user.VerifyToken
+
+	return (
+		"To: " + user.Email + "\r\n" +
+		"From: " + smtpUsername + "\r\n" +
+		"Subject: TodoAPI: confirm you email address!\r\n" +
+		"\r\n" +
+		"Hi " + user.Firstname + " " + user.Lastname + ",\r\n\r\n" +
+		"Confirm your email address for todoAPI with the following link\r\n\r\n" +
+		link + "\r\n\r\n" +
+		"Thanks for using todoAPI\r\n" +
+		"The todoAPI team\r\n"
+	)
+}
