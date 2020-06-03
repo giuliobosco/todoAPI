@@ -13,7 +13,7 @@ type User struct {
 	Firstname   string `json:"firstname"` // firstname of the user
 	Lastname    string `json:"lastname"`  // lastname of the user
 	VerifyToken string // verifyToken of the user
-	active      bool   `json:"active"` // active flag of the user
+	Active      bool   `json:"active"` // active flag of the user
 	Todos       []Task `json:"todos"`  // list of the todos of the user
 }
 
