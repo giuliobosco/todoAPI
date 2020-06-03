@@ -16,6 +16,7 @@ docker-compose up
 ## apis
 
 |Method|Path|Params|Body|Auth|Response|
+|------|----|------|----|----|--------|
 |`GET`|`/`|-|-|-|Welcome|
 |`POST`|`/v1/login`|-|`{username,password}`|-|`{token, expire}`|
 |`POST`|`/v1/register`|-|`{username,password}`|-|creted object|
