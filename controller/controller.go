@@ -44,6 +44,11 @@ func RegisterEndPoint(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{sError: config.SUserFailCreation})
 		return
 	}
+	user.Password, err = utils.PasswordHash(user.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{sError: err.Error()})
+		return
+	}
 
 	config.GetDB().Save(&user)
 	utils.UserConfirmationSendMail(user)
@@ -106,9 +111,17 @@ func ExecutePasswordRecovery(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
+		return
 	}
 
-	config.GetDB().Model(&user).Update(&user)
+	user.Password, err = utils.PasswordHash(user.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{sError: err.Error()})
+		return
+	}
+
+	config.GetDB().Model(&user).Update("verify_token", user.VerifyToken)
+	config.GetDB().Model(&user).Update("password", user.Password)
 
 	c.JSON(http.StatusOK, gin.H{sMessage: config.SUserPasswordUpdated})
 }
@@ -136,6 +149,18 @@ func UpdatePassword(c *gin.Context) {
 	}
 	if len(pr.OldPassword) == 0 || len(pr.NewPassword) == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{sError: config.SMissingOldNewPassword})
+		return
+	}
+
+	if !utils.ComparePasswordHash(user.Password, pr.OldPassword) {
+		c.JSON(http.StatusBadRequest, gin.H{sError: config.SWrongPassword})
+		return
+	}
+
+	var err error
+	pr.NewPassword, err = utils.PasswordHash(pr.NewPassword)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{sError: err.Error()})
 		return
 	}
 

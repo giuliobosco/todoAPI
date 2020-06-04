@@ -3,6 +3,8 @@ package utils
 import (
 	"crypto/rand"
 	"encoding/base64"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 //https://gist.github.com/dopey/c69559607800d2f2f90b1b1ed4e550fb
@@ -49,4 +51,22 @@ func GenerateRandomString(n int) (string, error) {
 func GenerateRandomStringURLSafe(n int) (string, error) {
 	b, err := GenerateRandomBytes(n)
 	return base64.URLEncoding.EncodeToString(b), err
+}
+
+func PasswordHash(password string) (string, error) {
+	passwordBytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
+
+	return string(passwordBytes), err
+}
+
+func ComparePasswordHash(h string, p string) bool {
+	hb := []byte(h)
+	pb := []byte(p)
+
+	err := bcrypt.CompareHashAndPassword(hb, pb)
+	if err != nil {
+		return false
+	}
+
+	return true
 }

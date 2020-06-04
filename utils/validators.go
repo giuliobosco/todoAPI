@@ -95,7 +95,6 @@ func ConfirmUserValidator(m map[string][]string) (*model.User, error) {
 type PasswordRecovery struct {
 	Email       string `json:"email"`
 	Token       string `json:"token"`
-	OldPassword string `json:"old_password"`
 	NewPassword string `json:"new_password"`
 }
 
@@ -113,9 +112,6 @@ func PasswordRecoveryValidator(c *gin.Context) (*model.User, error) {
 	if len(pr.Token) == 0 {
 		missing = append(missing, "token")
 	}
-	if len(pr.OldPassword) == 0 {
-		missing = append(missing, "old_password")
-	}
 	if len(pr.NewPassword) == 0 {
 		missing = append(missing, "new_password")
 	}
@@ -132,14 +128,14 @@ func PasswordRecoveryValidator(c *gin.Context) (*model.User, error) {
 
 		return nil, errors.New(errorString)
 	}
-
 	var user model.User
-	config.GetDB().Where("email = ? AND verify_token = ? AND password = ?", pr.Email, pr.Token, pr.OldPassword).First(&user)
+	config.GetDB().Where("email = ? AND verify_token = ?", pr.Email, pr.Token).First(&user)
 
 	if user.ID == 0 {
 		return nil, errors.New(config.SUserPasswordRecoveryError)
 	}
 
+	user.VerifyToken = ""
 	user.Password = pr.NewPassword
 
 	return &user, nil

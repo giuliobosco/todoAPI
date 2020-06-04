@@ -52,6 +52,8 @@ const (
 	SUserEmailAlreadyExists = "The email address is already used."
 	// SUserFailUpdate is the user fail update string
 	SUserFailUpdate = "Error while updating user"
+	// SWrongPassword is the wrong password string
+	SWrongPassword = "Wrong password"
 	// STaskCreated is the task created string
 	STaskCreated = "Task created successfully!"
 	// STaskNotFound is the task not found string

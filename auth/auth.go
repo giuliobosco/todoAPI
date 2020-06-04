@@ -7,6 +7,7 @@ import (
 
 	"github.com/giuliobosco/todoAPI/config"
 	"github.com/giuliobosco/todoAPI/model"
+	"github.com/giuliobosco/todoAPI/utils"
 
 	jwtapple2 "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
@@ -64,7 +65,7 @@ func authenticator(c *gin.Context) (interface{}, error) {
 	}
 
 	var result model.User
-	config.GetDB().Where("email = ? AND password = ?", loginVals.Email, loginVals.Password).First(&result)
+	config.GetDB().Where("email = ?", loginVals.Email).First(&result)
 
 	if result.ID == 0 {
 		return nil, jwtapple2.ErrFailedAuthentication
@@ -73,6 +74,11 @@ func authenticator(c *gin.Context) (interface{}, error) {
 	if !result.Active {
 		return nil, errors.New(config.SUserNotConfirmed)
 	}
+
+	if !utils.ComparePasswordHash(result.Password, loginVals.Password) {
+		return nil, jwtapple2.ErrFailedAuthentication
+	}
+
 	if len(result.VerifyToken) > 0 {
 		config.GetDB().Model(&result).Update("verify_token", "")
 	}
