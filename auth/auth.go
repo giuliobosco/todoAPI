@@ -82,7 +82,7 @@ func authenticator(c *gin.Context) (interface{}, error) {
 
 // authorizator checks the authorization of the user
 func authorizator(data interface{}, c *gin.Context) bool {
-	if v, ok := data.(model.User); ok && v.ID != 0 {
+	if v, ok := data.(model.User); ok && v.ID != 0 && v.Active {
 		return true
 	}
 

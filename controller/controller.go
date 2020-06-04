@@ -83,6 +83,11 @@ func RequestPasswordRecovery(c *gin.Context) {
 		return
 	}
 
+	if !user.Active {
+		c.JSON(http.StatusBadRequest, gin.H{sError: config.SUserNotConfirmed})
+		return
+	}
+
 	var err error
 	user.VerifyToken, err = utils.GenerateRandomStringURLSafe(config.TokenLength)
 	if err != nil {
