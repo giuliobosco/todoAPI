@@ -28,7 +28,7 @@ func UserConfirmationSendMail(user *model.User) {
 	}
 }
 
-func UserPasswordRecoverySendMail(user model.User) {
+func UserPasswordRecoverySendMail(user *model.User) {
 	auth := smtp.PlainAuth("", smtpUsername, smtpPassword, smtpServer)
 
 	// Here we do it all: connect to our server, set up a message and send it

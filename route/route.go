@@ -35,6 +35,7 @@ func SetupRoutes() *gin.Engine {
 		v1.POST("/register", controller.RegisterEndPoint)
 
 		v1.GET("/confirm", controller.ConfirmUser)
+		v1.GET("/sendAgainConfirm", controller.SendUserConfirmAgain)
 
 		v1.GET("/requestPasswordRecovery", controller.RequestPasswordRecovery)
 

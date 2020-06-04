@@ -63,20 +63,47 @@ func ConfirmUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{sMessage: config.SUserConfirmed})
 }
 
-// RequestPasswordRecovery is the function for request the password recovery
-func RequestPasswordRecovery(c *gin.Context) {
+func getUserByEmailParam(c *gin.Context) (*model.User, error) {
 	p := c.Request.URL.Query()
 
 	if p["email"] == nil || len(p["email"]) == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{sError: config.SMissingEmail})
-		return
+		return nil, errors.New(config.SMissingEmail)
 	}
 
 	var user model.User
 	config.GetDB().Where("email = ?", p["email"][0]).First(&user)
 
 	if user.ID <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{sError: config.SUserInvalid})
+		return nil, errors.New(config.SUserInvalid)
+	}
+
+	return &user, nil
+}
+
+func SendUserConfirmAgain(c *gin.Context) {
+	user, err := getUserByEmailParam(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
+		return
+	}
+
+	user.VerifyToken, err = utils.GenerateRandomStringURLSafe(config.TokenLength)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{sError: config.SUserFailCreation})
+		return
+	}
+
+	config.GetDB().Model(user).Update("verify_token", user.VerifyToken)
+	utils.UserConfirmationSendMail(user)
+
+	c.JSON(http.StatusOK, gin.H{sMessage: config.SUserSentConfirmationMailAgain})
+}
+
+// RequestPasswordRecovery is the function for request the password recovery
+func RequestPasswordRecovery(c *gin.Context) {
+	user, err := getUserByEmailParam(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
 		return
 	}
 
@@ -85,14 +112,13 @@ func RequestPasswordRecovery(c *gin.Context) {
 		return
 	}
 
-	var err error
 	user.VerifyToken, err = utils.GenerateRandomStringURLSafe(config.TokenLength)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{sError: config.SUserPasswordRecoveryError})
 		return
 	}
 
-	config.GetDB().Model(&user).Update(&user)
+	config.GetDB().Model(user).Update(user)
 	utils.UserPasswordRecoverySendMail(user)
 
 	c.JSON(http.StatusOK, gin.H{sMessage: config.SUserPasswordRecoveryMailSent})

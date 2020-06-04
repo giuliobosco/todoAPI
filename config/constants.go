@@ -59,6 +59,10 @@ const (
 	SUserDeleted = "User deleted"
 	// SUser user string
 	SUser = "user"
+	// SUserWrongUsernamePassword is the wrong username or password string
+	SUserWrongUsernamePassword = "Wrong username or password."
+	// SUserSentConfirmationMailAgain is the sent confirmation mail again
+	SUserSentConfirmationMailAgain = "User confirmation email sent again"
 )
 
 // Task consts
@@ -101,7 +105,7 @@ func BuildConfirmEmail(user *model.User, smtpUsername string) []byte {
 		"The todoAPI team\r\n")
 }
 
-func BuildPasswordRecovery(user model.User, smtpUsername string) []byte {
+func BuildPasswordRecovery(user *model.User, smtpUsername string) []byte {
 	var link string = URL + "v1/executePasswordRecovery?email=" + user.Email + "&token=" + user.VerifyToken
 
 	return []byte("To: " + user.Email + "\r\n" +
