@@ -71,7 +71,7 @@ func RequestPasswordRecovery(c *gin.Context) {
 	p := c.Request.URL.Query()
 
 	if p["email"] == nil || len(p["email"]) == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{sError: "Missing: email"})
+		c.JSON(http.StatusBadRequest, gin.H{sError: config.SMissingEmail})
 		return
 	}
 
@@ -104,6 +104,37 @@ func ExecutePasswordRecovery(c *gin.Context) {
 	}
 
 	config.GetDB().Model(&user).Update(&user)
+
+	c.JSON(http.StatusOK, gin.H{sMessage: config.SUserPasswordUpdated})
+}
+
+type PasswordRecovery struct {
+	OldPassword string `json:"old_password"`
+	NewPassword string `json:"new_password"`
+}
+
+func UpdatePassword(c *gin.Context) {
+	claims := jwtapple2.ExtractClaims(c)
+
+	var user model.User
+	config.GetDB().Where("id = ?", claims[config.IdentityKey]).First(&user)
+
+	if user.ID <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{sError: config.SUserInvalid})
+		return
+	}
+
+	var pr PasswordRecovery
+	if err := c.ShouldBindJSON(&pr); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
+		return
+	}
+	if len(pr.OldPassword) == 0 || len(pr.NewPassword) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{sError: config.SMissingOldNewPassword})
+		return
+	}
+
+	config.GetDB().Model(&user).Update("password", pr.NewPassword)
 
 	c.JSON(http.StatusOK, gin.H{sMessage: config.SUserPasswordUpdated})
 }

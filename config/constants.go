@@ -38,8 +38,12 @@ const (
 	SUserPasswordRecoveryError = "Error while recovery user password."
 	// SUserPasswordRecoveryMailSent is the user password recovery mail sent
 	SUserPasswordRecoveryMailSent = "User password recovery mail sent."
-	// SUserPasswordUpdated
+	// SUserPasswordUpdated is the user password updated string
 	SUserPasswordUpdated = "User password updated"
+	// SMissingOldNewPassword is the missing old or new password string
+	SMissingOldNewPassword = "Missing old or new password"
+	// SMissingEmail is the missing email string
+	SMissingEmail = "Missing: email"
 	// STaskCreated is the task created string
 	STaskCreated = "Task created successfully!"
 	// STaskNotFound is the task not found string
