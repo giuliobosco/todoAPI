@@ -11,6 +11,7 @@ var (
 	URL = os.Getenv("URL")
 )
 
+// User Consts
 const (
 	// TokenLength is the length of the user activation token
 	TokenLength = 64
@@ -58,6 +59,10 @@ const (
 	SUserDeleted = "User deleted"
 	// SUser user string
 	SUser = "user"
+)
+
+// Task consts
+const (
 	// STaskCreated is the task created string
 	STaskCreated = "Task created successfully!"
 	// STaskNotFound is the task not found string

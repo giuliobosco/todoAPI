@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/giuliobosco/todoAPI/config"
@@ -14,7 +15,6 @@ import (
 const sMessage string = config.SMessage
 const sError string = config.SError
 const sData string = config.SData
-const sTask string = config.STask
 
 // RegisterEndPoint registration API End Point
 func RegisterEndPoint(c *gin.Context) {
@@ -72,6 +72,7 @@ func ConfirmUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{sMessage: config.SUserConfirmed})
 }
 
+// RequestPasswordRecovery is the function for request the password recovery
 func RequestPasswordRecovery(c *gin.Context) {
 	p := c.Request.URL.Query()
 
@@ -106,6 +107,7 @@ func RequestPasswordRecovery(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{sMessage: config.SUserPasswordRecoveryMailSent})
 }
 
+// ExecutePasswordRecovery is the function for execute the password recovery
 func ExecutePasswordRecovery(c *gin.Context) {
 	user, err := utils.PasswordRecoveryValidator(c)
 
@@ -126,24 +128,35 @@ func ExecutePasswordRecovery(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{sMessage: config.SUserPasswordUpdated})
 }
 
-type PasswordRecovery struct {
+func getUserByContext(c *gin.Context) (*model.User, error) {
+	cl := jwtapple2.ExtractClaims(c)
+
+	var u model.User
+	config.GetDB().Where("id = ?", cl[config.IdentityKey]).First(&u)
+
+	if u.ID <= 0 {
+		return nil, errors.New(config.SUserInvalid)
+	}
+
+	return &u, nil
+}
+
+// UpdatePasswordObj is the object containing the update password data
+type UpdatePasswordObj struct {
 	OldPassword string `json:"old_password"`
 	NewPassword string `json:"new_password"`
 }
 
+// UpdatePassword function
 func UpdatePassword(c *gin.Context) {
-	claims := jwtapple2.ExtractClaims(c)
-
-	var user model.User
-	config.GetDB().Where("id = ?", claims[config.IdentityKey]).First(&user)
-
-	if user.ID <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{sError: config.SUserInvalid})
+	user, err := getUserByContext(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
 		return
 	}
 
-	var pr PasswordRecovery
-	if err := c.ShouldBindJSON(&pr); err != nil {
+	var pr UpdatePasswordObj
+	if err = c.ShouldBindJSON(&pr); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
 		return
 	}
@@ -157,7 +170,6 @@ func UpdatePassword(c *gin.Context) {
 		return
 	}
 
-	var err error
 	pr.NewPassword, err = utils.PasswordHash(pr.NewPassword)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{sError: err.Error()})
@@ -169,14 +181,11 @@ func UpdatePassword(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{sMessage: config.SUserPasswordUpdated})
 }
 
+// FetchUser is the funciton for load the actual user data
 func FetchUser(c *gin.Context) {
-	claims := jwtapple2.ExtractClaims(c)
-
-	var user model.User
-	config.GetDB().Where("id = ?", claims[config.IdentityKey]).First(&user)
-
-	if user.ID == 0 {
-		c.JSON(http.StatusNotFound, gin.H{sMessage: config.SUserNotFound})
+	user, err := getUserByContext(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
 		return
 	}
 	user.Password = ""
@@ -186,13 +195,9 @@ func FetchUser(c *gin.Context) {
 
 // UpdateUser update user
 func UpdateUser(c *gin.Context) {
-	claims := jwtapple2.ExtractClaims(c)
-
-	var dbUser model.User
-	config.GetDB().Where("id = ?", claims[config.IdentityKey]).First(&dbUser)
-
-	if dbUser.ID <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{sError: config.SUserInvalid})
+	dbUser, err := getUserByContext(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
 		return
 	}
 
@@ -235,14 +240,11 @@ func UpdateUser(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{sMessage: config.SUserUpdated})
 }
 
+// DeleteUser is the function for delete the user
 func DeleteUser(c *gin.Context) {
-	claims := jwtapple2.ExtractClaims(c)
-
-	var dbUser model.User
-	config.GetDB().Where("id = ?", claims[config.IdentityKey]).First(&dbUser)
-
-	if dbUser.ID == 0 {
-		c.JSON(http.StatusNotFound, gin.H{sError: config.SUserNotFound})
+	dbUser, err := getUserByContext(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
 		return
 	}
 
@@ -260,123 +262,4 @@ func DeleteUser(c *gin.Context) {
 	config.GetDB().Delete(dbUser)
 
 	c.JSON(http.StatusOK, gin.H{sMessage: config.SUserDeleted, config.SUser: dbUser})
-}
-
-// CreateTask is the function for create a task
-func CreateTask(c *gin.Context) {
-	claims := jwtapple2.ExtractClaims(c)
-
-	var user model.User
-	config.GetDB().Where("id = ?", claims[config.IdentityKey]).First(&user)
-
-	if user.ID <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{sError: config.SUserInvalid})
-		return
-	}
-
-	var todo model.Task
-	if err := c.ShouldBindJSON(&todo); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
-		return
-	}
-
-	todo.UserID = user.ID
-	config.GetDB().Save(&todo)
-	c.JSON(http.StatusCreated, gin.H{sMessage: config.STaskCreated, sTask: todo})
-}
-
-// FetchAllTask is the function for fetch all tasks
-func FetchAllTask(c *gin.Context) {
-	claims := jwtapple2.ExtractClaims(c)
-
-	var user model.User
-	config.GetDB().Where("id = ?", claims[config.IdentityKey]).First(&user)
-
-	if user.ID <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{sError: config.SUserInvalid})
-		return
-	}
-
-	var todos []model.Task
-	config.GetDB().Where("user_id = ?", user.ID).Order("created_at desc").Find(&todos)
-
-	if len(todos) <= 0 {
-		c.JSON(http.StatusNotFound, gin.H{sMessage: config.STaskNotFound, sData: todos})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{sData: todos})
-}
-
-// FetchSingleTask is the function for fetch a single task by id
-func FetchSingleTask(c *gin.Context) {
-	todoID := c.Param("id")
-
-	if len(todoID) <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{sError: config.STaskInvalid})
-		return
-	}
-
-	var todo model.Task
-	config.GetDB().First(&todo, todoID)
-
-	if todo.ID == 0 {
-		c.JSON(http.StatusNotFound, gin.H{sMessage: config.STaskNotFound})
-		return
-	}
-
-	c.JSON(http.StatusOK, todo)
-}
-
-// UpdateTask is the function for update a task by id
-func UpdateTask(c *gin.Context) {
-	todoID := c.Param("id")
-
-	if len(todoID) <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{sError: config.SUserInvalid})
-		return
-	}
-
-	var newTodo model.Task
-	if err := c.ShouldBindJSON(&newTodo); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
-		return
-	}
-
-	var todo model.Task
-	config.GetDB().First(&todo, todoID)
-
-	if todo.ID <= 0 {
-		c.JSON(http.StatusNotFound, gin.H{sMessage: config.STaskNotFound})
-		return
-	}
-
-	config.GetDB().Model(&todo).Update("title", newTodo.Title)
-	config.GetDB().Model(&todo).Update("description", newTodo.Description)
-	config.GetDB().Model(&todo).Update("completed", newTodo.Completed)
-
-	config.GetDB().First(&todo, todoID)
-
-	c.JSON(http.StatusOK, gin.H{sMessage: config.STaskUpdated, sTask: todo})
-}
-
-// DeleteTask is the function for delete a task by id
-func DeleteTask(c *gin.Context) {
-	var todo model.Task
-	todoID := c.Param("id")
-
-	if len(todoID) <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{sError: config.STaskNotFound})
-		return
-	}
-
-	config.GetDB().First(&todo, todoID)
-
-	if todo.ID == 0 {
-		c.JSON(http.StatusNotFound, gin.H{sMessage: config.STaskNotFound})
-		return
-	}
-
-	config.GetDB().Delete(&todo)
-	c.JSON(http.StatusOK, gin.H{sMessage: config.STaskDeleted, sTask: todo})
 }
