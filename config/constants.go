@@ -54,6 +54,10 @@ const (
 	SUserFailUpdate = "Error while updating user"
 	// SWrongPassword is the wrong password string
 	SWrongPassword = "Wrong password"
+	// SUserDeleted is the user deleted string
+	SUserDeleted = "User deleted"
+	// SUser user string
+	SUser = "user"
 	// STaskCreated is the task created string
 	STaskCreated = "Task created successfully!"
 	// STaskNotFound is the task not found string

@@ -46,6 +46,8 @@ func SetupRoutes() *gin.Engine {
 
 		v1.GET("/user", authMiddleware.MiddlewareFunc(), controller.FetchUser)
 
+		v1.DELETE("/deleteUser", authMiddleware.MiddlewareFunc(), controller.DeleteUser)
+
 		todo := v1.Group("todo")
 		{
 			todo.POST("/create", authMiddleware.MiddlewareFunc(), controller.CreateTask)

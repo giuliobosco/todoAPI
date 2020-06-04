@@ -235,6 +235,33 @@ func UpdateUser(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{sMessage: config.SUserUpdated})
 }
 
+func DeleteUser(c *gin.Context) {
+	claims := jwtapple2.ExtractClaims(c)
+
+	var dbUser model.User
+	config.GetDB().Where("id = ?", claims[config.IdentityKey]).First(&dbUser)
+
+	if dbUser.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{sError: config.SUserNotFound})
+		return
+	}
+
+	var user model.User
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
+		return
+	}
+
+	if !utils.ComparePasswordHash(dbUser.Password, user.Password) {
+		c.JSON(http.StatusBadRequest, gin.H{sError: config.SWrongPassword})
+		return
+	}
+
+	config.GetDB().Delete(dbUser)
+
+	c.JSON(http.StatusOK, gin.H{sMessage: config.SUserDeleted, config.SUser: dbUser})
+}
+
 // CreateTask is the function for create a task
 func CreateTask(c *gin.Context) {
 	claims := jwtapple2.ExtractClaims(c)
