@@ -41,6 +41,10 @@ func SetupRoutes() *gin.Engine {
 
 		v1.POST("/updatePassword", authMiddleware.MiddlewareFunc(), controller.UpdatePassword)
 
+		v1.PUT("/updateUser", authMiddleware.MiddlewareFunc(), controller.UpdateUser)
+
+		v1.GET("/user", authMiddleware.MiddlewareFunc(), controller.FetchUser)
+
 		todo := v1.Group("todo")
 		{
 			todo.POST("/create", authMiddleware.MiddlewareFunc(), controller.CreateTask)

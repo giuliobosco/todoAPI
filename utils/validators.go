@@ -20,13 +20,13 @@ func EmailValidator(email string) (bool, error) {
 }
 
 // UserValidator validate user parameters
-func UserValidator(user model.User) (bool, error) {
+func UserValidator(user model.User, usePassword bool) (bool, error) {
 	var missing []string
 
 	if len(user.Email) == 0 {
 		missing = append(missing, "email")
 	}
-	if len(user.Password) == 0 {
+	if len(user.Password) == 0 && usePassword {
 		missing = append(missing, "password")
 	}
 	if len(user.Firstname) == 0 {

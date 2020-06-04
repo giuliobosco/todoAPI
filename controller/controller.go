@@ -23,7 +23,7 @@ func RegisterEndPoint(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
 		return
 	}
-	if ok, err := utils.UserValidator(user); !ok {
+	if ok, err := utils.UserValidator(user, true); !ok {
 		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
 		return
 	}
@@ -137,6 +137,72 @@ func UpdatePassword(c *gin.Context) {
 	config.GetDB().Model(&user).Update("password", pr.NewPassword)
 
 	c.JSON(http.StatusOK, gin.H{sMessage: config.SUserPasswordUpdated})
+}
+
+func FetchUser(c *gin.Context) {
+	claims := jwtapple2.ExtractClaims(c)
+
+	var user model.User
+	config.GetDB().Where("id = ?", claims[config.IdentityKey]).First(&user)
+
+	if user.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{sMessage: config.SUserNotFound})
+		return
+	}
+	user.Password = ""
+
+	c.JSON(http.StatusOK, user)
+}
+
+// UpdateUser update user
+func UpdateUser(c *gin.Context) {
+	claims := jwtapple2.ExtractClaims(c)
+
+	var dbUser model.User
+	config.GetDB().Where("id = ?", claims[config.IdentityKey]).First(&dbUser)
+
+	if dbUser.ID <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{sError: config.SUserInvalid})
+		return
+	}
+
+	var user model.User
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
+		return
+	}
+	if ok, err := utils.UserValidator(user, false); !ok {
+		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
+		return
+	}
+
+	if dbUser.Email != user.Email {
+		var userCheck model.User
+		config.GetDB().First(&userCheck, "email = ?", user.Email)
+
+		if userCheck.ID > 0 {
+			c.JSON(http.StatusConflict, gin.H{sMessage: config.SUserEmailAlreadyExists})
+			return
+		}
+
+		user.Active = false
+		var err error
+		user.VerifyToken, err = utils.GenerateRandomStringURLSafe(config.TokenLength)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{sError: config.SUserFailUpdate})
+			return
+		}
+		config.GetDB().Model(&dbUser).Update("email", user.Email)
+		config.GetDB().Model(&dbUser).Update("active", user.Active)
+		config.GetDB().Model(&dbUser).Update("verify_token", user.VerifyToken)
+		utils.UserConfirmationSendMail(user)
+	}
+
+	config.GetDB().Model(&dbUser).Update("firstname", user.Firstname)
+	config.GetDB().Model(&dbUser).Update("lastname", user.Lastname)
+
+	c.JSON(http.StatusCreated, gin.H{sMessage: config.SUserUpdated})
 }
 
 // CreateTask is the function for create a task

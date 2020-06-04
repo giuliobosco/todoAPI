@@ -44,6 +44,14 @@ const (
 	SMissingOldNewPassword = "Missing old or new password"
 	// SMissingEmail is the missing email string
 	SMissingEmail = "Missing: email"
+	// SUserUpdated is the user updated string
+	SUserUpdated = "User updated."
+	// SUserNotFound is the user not found string
+	SUserNotFound = "User not found"
+	// SUserEmailAlreadyExists is the user email already exists string
+	SUserEmailAlreadyExists = "The email address is already used."
+	// SUserFailUpdate is the user fail update string
+	SUserFailUpdate = "Error while updating user"
 	// STaskCreated is the task created string
 	STaskCreated = "Task created successfully!"
 	// STaskNotFound is the task not found string
