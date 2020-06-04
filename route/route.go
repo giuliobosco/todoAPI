@@ -30,6 +30,7 @@ func SetupRoutes() *gin.Engine {
 	v1 := router.Group("/v1")
 	{
 		v1.POST("/login", authMiddleware.LoginHandler)
+		v1.POST("/logout", authMiddleware.LogoutHandler)
 
 		v1.POST("/register", controller.RegisterEndPoint)
 
