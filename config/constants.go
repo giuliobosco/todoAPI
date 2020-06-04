@@ -87,7 +87,7 @@ const (
 	SToken = "token"
 )
 
-func BuildConfirmEmail(user model.User, smtpUsername string) []byte {
+func BuildConfirmEmail(user *model.User, smtpUsername string) []byte {
 	var link string = URL + "v1/confirm?email=" + user.Email + "&token=" + user.VerifyToken
 
 	return []byte("To: " + user.Email + "\r\n" +

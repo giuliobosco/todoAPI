@@ -3,11 +3,11 @@ package utils
 import (
 	"errors"
 
-	"github.com/gin-gonic/gin"
 	"github.com/giuliobosco/todoAPI/config"
 	"github.com/giuliobosco/todoAPI/model"
 
 	"github.com/badoux/checkmail"
+	"github.com/gin-gonic/gin"
 )
 
 // EmailValidator validate email address, by his format and the host
@@ -20,19 +20,24 @@ func EmailValidator(email string) (bool, error) {
 }
 
 // UserValidator validate user parameters
-func UserValidator(user model.User, usePassword bool) (bool, error) {
+func UserValidator(c *gin.Context, usePassword bool) (*model.User, error) {
+	var u model.User
+	if err := c.ShouldBindJSON(&u); err != nil {
+		return nil, err
+	}
+
 	var missing []string
 
-	if len(user.Email) == 0 {
+	if len(u.Email) == 0 {
 		missing = append(missing, "email")
 	}
-	if len(user.Password) == 0 && usePassword {
+	if len(u.Password) == 0 && usePassword {
 		missing = append(missing, "password")
 	}
-	if len(user.Firstname) == 0 {
+	if len(u.Firstname) == 0 {
 		missing = append(missing, "Firstname")
 	}
-	if len(user.Lastname) == 0 {
+	if len(u.Lastname) == 0 {
 		missing = append(missing, "Lastname")
 	}
 
@@ -46,14 +51,14 @@ func UserValidator(user model.User, usePassword bool) (bool, error) {
 			errorString += " " + m
 		}
 
-		return false, errors.New(errorString)
+		return nil, errors.New(errorString)
 	}
 
-	if ok, err := EmailValidator(user.Email); !ok {
-		return false, errors.New("Email: " + err.Error())
+	if ok, err := EmailValidator(u.Email); !ok {
+		return nil, errors.New("Email: " + err.Error())
 	}
 
-	return true, nil
+	return &u, nil
 }
 
 func ConfirmUserValidator(m map[string][]string) (*model.User, error) {

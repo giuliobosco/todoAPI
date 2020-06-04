@@ -18,32 +18,23 @@ const sData string = config.SData
 
 // RegisterEndPoint registration API End Point
 func RegisterEndPoint(c *gin.Context) {
-	var user model.User
-	if err := c.ShouldBindJSON(&user); err != nil {
+	user, err := utils.UserValidator(c, true)
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
-		return
-	}
-	if ok, err := utils.UserValidator(user, true); !ok {
-		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
-		return
 	}
 
-	var userCheck model.User
-	config.GetDB().First(&userCheck, "email = ?", user.Email)
-
-	if userCheck.ID > 0 {
-		c.JSON(http.StatusConflict, gin.H{sMessage: config.SUserExists})
+	if err = emailCheck(user.Email); err != nil {
+		c.JSON(http.StatusConflict, gin.H{sMessage: err.Error()})
 		return
 	}
 
 	user.Active = false
-	var err error
 	user.VerifyToken, err = utils.GenerateRandomStringURLSafe(config.TokenLength)
-
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{sError: config.SUserFailCreation})
 		return
 	}
+
 	user.Password, err = utils.PasswordHash(user.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{sError: err.Error()})
@@ -141,6 +132,17 @@ func getUserByContext(c *gin.Context) (*model.User, error) {
 	return &u, nil
 }
 
+func emailCheck(email string) error {
+	var u model.User
+	config.GetDB().First(&u, "email = ?", email)
+
+	if u.ID > 0 {
+		return errors.New(config.SUserEmailAlreadyExists)
+	}
+
+	return nil
+}
+
 // UpdatePasswordObj is the object containing the update password data
 type UpdatePasswordObj struct {
 	OldPassword string `json:"old_password"`
@@ -201,22 +203,15 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	var user model.User
-	if err := c.ShouldBindJSON(&user); err != nil {
+	var user *model.User
+	user, err = utils.UserValidator(c, true)
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
-		return
-	}
-	if ok, err := utils.UserValidator(user, false); !ok {
-		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
-		return
 	}
 
 	if dbUser.Email != user.Email {
-		var userCheck model.User
-		config.GetDB().First(&userCheck, "email = ?", user.Email)
-
-		if userCheck.ID > 0 {
-			c.JSON(http.StatusConflict, gin.H{sMessage: config.SUserEmailAlreadyExists})
+		if err = emailCheck(user.Email); err != nil {
+			c.JSON(http.StatusConflict, gin.H{sMessage: err.Error()})
 			return
 		}
 
