@@ -63,6 +63,10 @@ const (
 	SUserWrongUsernamePassword = "Wrong username or password."
 	// SUserSentConfirmationMailAgain is the sent confirmation mail again
 	SUserSentConfirmationMailAgain = "User confirmation email sent again"
+	// SExpire is the expire string
+	SExpire = "expire"
+	// SToken is the token string
+	SToken = "token"
 )
 
 // Task consts
@@ -85,10 +89,8 @@ const (
 	SData = "data"
 	// STask is the task string
 	STask = "task"
-	// SExpire is the expire string
-	SExpire = "expire"
-	// SToken is the token string
-	SToken = "token"
+	// STaskUnauthorized is the task unauthorized string
+	STaskUnauthorized = "Task Unauthorized"
 )
 
 func BuildConfirmEmail(user *model.User, smtpUsername string) []byte {
