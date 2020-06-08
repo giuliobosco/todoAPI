@@ -11,4 +11,5 @@ require (
 	github.com/selvatico/go-mocket v1.0.7
 	github.com/stretchr/testify v1.4.0
 	golang.org/x/crypto v0.0.0-20191205180655-e7c4368fe9dd
+	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 )

@@ -29,25 +29,6 @@ func SetupRoutes() *gin.Engine {
 
 	v1 := router.Group("/v1")
 	{
-		v1.POST("/login", authMiddleware.LoginHandler)
-		v1.POST("/logout", authMiddleware.LogoutHandler)
-
-		v1.POST("/register", controller.RegisterEndPoint)
-
-		v1.GET("/confirm", controller.ConfirmUser)
-		v1.GET("/sendAgainConfirm", controller.SendUserConfirmAgain)
-
-		v1.GET("/requestPasswordRecovery", controller.RequestPasswordRecovery)
-
-		v1.POST("/executePasswordRecovery", controller.ExecutePasswordRecovery)
-
-		v1.POST("/updatePassword", authMiddleware.MiddlewareFunc(), controller.UpdatePassword)
-
-		v1.PUT("/updateUser", authMiddleware.MiddlewareFunc(), controller.UpdateUser)
-
-		v1.GET("/user", authMiddleware.MiddlewareFunc(), controller.FetchUser)
-
-		v1.DELETE("/deleteUser", authMiddleware.MiddlewareFunc(), controller.DeleteUser)
 
 		todo := v1.Group("todo")
 		{
@@ -57,10 +38,33 @@ func SetupRoutes() *gin.Engine {
 			todo.PUT("/update/:id", authMiddleware.MiddlewareFunc(), controller.UpdateTask)
 			todo.DELETE("/delete/:id", authMiddleware.MiddlewareFunc(), controller.DeleteTask)
 		}
+
+		user := router.Group("user")
+		{
+			user.GET("/get", authMiddleware.MiddlewareFunc(), controller.FetchUser)
+			user.PUT("/update/:id", authMiddleware.MiddlewareFunc(), controller.UpdateUser)
+			user.DELETE("/delete/:id", authMiddleware.MiddlewareFunc(), controller.DeleteUser)
+		}
 	}
 
-	authorization := router.Group("/auth")
-	authorization.GET("/refresh_token", authMiddleware.RefreshHandler)
+	auth := router.Group("auth")
+	{
+		auth.GET("/refresh_token", authMiddleware.RefreshHandler)
+		auth.POST("/login", authMiddleware.LoginHandler)
+		auth.POST("/logout", authMiddleware.LogoutHandler)
+
+		auth.POST("/register", controller.RegisterEndPoint)
+
+		auth.GET("/confirm", controller.ConfirmUser)
+		auth.GET("/sendAgainConfirm", controller.SendUserConfirmAgain)
+
+		auth.GET("/requestPasswordRecovery", controller.RequestPasswordRecovery)
+
+		auth.POST("/executePasswordRecovery", controller.ExecutePasswordRecovery)
+
+		auth.POST("/updatePassword", authMiddleware.MiddlewareFunc(), controller.UpdatePassword)
+
+	}
 
 	return router
 }
