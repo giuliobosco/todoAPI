@@ -104,7 +104,7 @@ const (
 )
 
 func BuildConfirmEmail(user *model.User, smtpUsername string) []byte {
-	var link string = URL + "v1/confirm?email=" + user.Email + "&token=" + user.VerifyToken
+	var link string = URL + "auth/confirm?email=" + user.Email + "&token=" + user.VerifyToken
 
 	return []byte("To: " + user.Email + "\r\n" +
 		"From: " + smtpUsername + "\r\n" +
@@ -118,7 +118,7 @@ func BuildConfirmEmail(user *model.User, smtpUsername string) []byte {
 }
 
 func BuildPasswordRecovery(user *model.User, smtpUsername string) []byte {
-	var link string = URL + "v1/executePasswordRecovery?email=" + user.Email + "&token=" + user.VerifyToken
+	var link string = URL + "auth/executePasswordRecovery?email=" + user.Email + "&token=" + user.VerifyToken
 
 	return []byte("To: " + user.Email + "\r\n" +
 		"From: " + smtpUsername + "\r\n" +
