@@ -67,6 +67,16 @@ const (
 	SExpire = "expire"
 	// SToken is the token string
 	SToken = "token"
+	// SMissingAuthType is the missing auth type string
+	SMissingAuthType = "Missing auth type"
+	// SNotValidAuthType is the not valid auth type string
+	SNotValidAuthType = "Not valid auth type"
+	// SType is the type string
+	SType = "type"
+	// SEmail is the email string
+	SEmail = "email"
+	// SGoogle is the google string
+	SGoogle = "google"
 )
 
 // Task consts

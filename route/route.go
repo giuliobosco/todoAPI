@@ -47,23 +47,25 @@ func SetupRoutes() *gin.Engine {
 		}
 	}
 
-	auth := router.Group("auth")
+	authGroup := router.Group("auth")
 	{
-		auth.GET("/refresh_token", authMiddleware.RefreshHandler)
-		auth.POST("/login", authMiddleware.LoginHandler)
-		auth.POST("/logout", authMiddleware.LogoutHandler)
+		authGroup.GET("/refresh_token", authMiddleware.RefreshHandler)
+		authGroup.POST("/login", authMiddleware.LoginHandler)
+		authGroup.POST("/logout", authMiddleware.LogoutHandler)
 
-		auth.POST("/register", controller.RegisterEndPoint)
+		authGroup.GET("/oauth_url", auth.OAuthUrl)
+		authGroup.GET("/oauth", authMiddleware.LoginHandler)
 
-		auth.GET("/confirm", controller.ConfirmUser)
-		auth.GET("/sendAgainConfirm", controller.SendUserConfirmAgain)
+		authGroup.POST("/register", controller.RegisterEndPoint)
 
-		auth.GET("/requestPasswordRecovery", controller.RequestPasswordRecovery)
+		authGroup.GET("/confirm", controller.ConfirmUser)
+		authGroup.GET("/sendAgainConfirm", controller.SendUserConfirmAgain)
 
-		auth.POST("/executePasswordRecovery", controller.ExecutePasswordRecovery)
+		authGroup.GET("/requestPasswordRecovery", controller.RequestPasswordRecovery)
 
-		auth.POST("/updatePassword", authMiddleware.MiddlewareFunc(), controller.UpdatePassword)
+		authGroup.POST("/executePasswordRecovery", controller.ExecutePasswordRecovery)
 
+		authGroup.POST("/updatePassword", authMiddleware.MiddlewareFunc(), controller.UpdatePassword)
 	}
 
 	return router
