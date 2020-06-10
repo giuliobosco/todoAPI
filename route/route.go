@@ -39,11 +39,11 @@ func SetupRoutes() *gin.Engine {
 			todo.DELETE("/delete/:id", authMiddleware.MiddlewareFunc(), controller.DeleteTask)
 		}
 
-		user := router.Group("user")
+		user := v1.Group("user")
 		{
 			user.GET("/get", authMiddleware.MiddlewareFunc(), controller.FetchUser)
-			user.PUT("/update/:id", authMiddleware.MiddlewareFunc(), controller.UpdateUser)
-			user.DELETE("/delete/:id", authMiddleware.MiddlewareFunc(), controller.DeleteUser)
+			user.PUT("/update", authMiddleware.MiddlewareFunc(), controller.UpdateUser)
+			user.DELETE("/delete", authMiddleware.MiddlewareFunc(), controller.DeleteUser)
 		}
 	}
 

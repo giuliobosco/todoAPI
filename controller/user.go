@@ -31,12 +31,17 @@ func UpdateUser(c *gin.Context) {
 	}
 
 	var user *model.User
-	user, err = utils.UserValidator(c, true)
+	user, err = utils.UserValidator(c, false)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
 	}
 
 	if dbUser.Email != user.Email {
+		if len(dbUser.Password) <= 0 {
+			c.JSON(http.StatusConflict, gin.H{sError: config.SUserFailUpdate})
+			return
+		}
+
 		if err = emailCheck(user.Email); err != nil {
 			c.JSON(http.StatusConflict, gin.H{sMessage: err.Error()})
 			return
@@ -76,7 +81,7 @@ func DeleteUser(c *gin.Context) {
 		return
 	}
 
-	if !utils.ComparePasswordHash(dbUser.Password, user.Password) {
+	if !utils.ComparePasswordHash(dbUser.Password, user.Password) && len(dbUser.Password) > 0 {
 		c.JSON(http.StatusBadRequest, gin.H{sError: config.SWrongPassword})
 		return
 	}
