@@ -20,10 +20,10 @@ jobs:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
 
-    - name: Install Hugo
+    - name: Running Tests
       run: go test -v ./...
 
-    - name: Send message to Telegram
+    - name: Send results via Telegram
       uses: Lukasss93/telegram-action@v1
       env:
         TELEGRAM_TOKEN: ${{ secrets.telegram_token }}
