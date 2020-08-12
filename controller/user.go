@@ -3,6 +3,8 @@ package controller
 import (
 	"net/http"
 
+	"github.com/giuliobosco/todoAPI/services"
+
 	"github.com/giuliobosco/todoAPI/config"
 	"github.com/giuliobosco/todoAPI/model"
 	"github.com/giuliobosco/todoAPI/utils"
@@ -55,14 +57,13 @@ func UpdateUser(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{sError: config.SUserFailUpdate})
 			return
 		}
-		config.GetDB().Model(&dbUser).Update("email", user.Email)
-		config.GetDB().Model(&dbUser).Update("active", user.Active)
-		config.GetDB().Model(&dbUser).Update("verify_token", user.VerifyToken)
+
+		services.UpdateUserEmail(dbUser, user)
+
 		utils.UserConfirmationSendMail(user)
 	}
 
-	config.GetDB().Model(&dbUser).Update("firstname", user.Firstname)
-	config.GetDB().Model(&dbUser).Update("lastname", user.Lastname)
+	services.UpdateUserAnagraphic(dbUser, user)
 
 	c.JSON(http.StatusCreated, gin.H{sMessage: config.SUserUpdated})
 }
