@@ -20,3 +20,8 @@ func GetUserByEmail(email string) model.User {
 
 	return user
 }
+
+// EmptyUserVerifyToken empty the verify token of the user
+func EmptyUserVerifyToken(user *model.User) {
+	config.GetDB().Model(&user).Update("verify_token", "")
+}

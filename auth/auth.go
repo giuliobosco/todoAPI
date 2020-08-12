@@ -104,7 +104,7 @@ func emailAuthenticator(c *gin.Context) (interface{}, error) {
 	}
 
 	if len(result.VerifyToken) > 0 {
-		config.GetDB().Model(&result).Update("verify_token", "")
+		services.EmptyUserVerifyToken(&result)
 	}
 
 	return &result, nil
