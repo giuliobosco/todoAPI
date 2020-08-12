@@ -7,6 +7,7 @@ import (
 
 	"github.com/giuliobosco/todoAPI/config"
 	"github.com/giuliobosco/todoAPI/model"
+	"github.com/giuliobosco/todoAPI/services"
 	"github.com/giuliobosco/todoAPI/utils"
 
 	jwtapple2 "github.com/appleboy/gin-jwt/v2"
@@ -52,8 +53,10 @@ func payload(data interface{}) jwtapple2.MapClaims {
 // identitityHandler identify the user
 func identityHandler(c *gin.Context) interface{} {
 	claims := jwtapple2.ExtractClaims(c)
+	id := claims[config.IdentityKey].(float64)
+
 	var user model.User
-	config.GetDB().Where("id = ?", claims[config.IdentityKey]).First(&user)
+	user = services.GetUserByID(int64(id))
 
 	return user
 }
