@@ -10,22 +10,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func getMapByUser(u model.User) []map[string]interface{} {
-	return []map[string]interface{}{{
-		"id":        u.ID,
-		"email":     u.Email,
-		"firstname": u.Firstname,
-		"lastname":  u.Lastname,
-		"active":    u.Active,
-	}}
-}
-
 func TestGetUserByID(t *testing.T) {
 	mocket.Catcher.Logging = true
 	config.TestInit()
 
 	expectedUser := mock.GetMockUser()
-	commonReply := getMapByUser(expectedUser)
+	commonReply := mock.GetMapByUser(expectedUser)
 	mocket.Catcher.Reset().NewMock().WithQuery("SELECT").WithReply(commonReply)
 
 	var actualUser model.User
@@ -50,7 +40,7 @@ func TestGetUserByEmail(t *testing.T) {
 	config.TestInit()
 
 	expectedUser := mock.GetMockUser()
-	commonReply := getMapByUser(expectedUser)
+	commonReply := mock.GetMapByUser(expectedUser)
 	mocket.Catcher.Reset().NewMock().WithQuery("SELECT").WithReply(commonReply)
 
 	var actualUser model.User
