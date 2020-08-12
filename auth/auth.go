@@ -53,7 +53,12 @@ func payload(data interface{}) jwtapple2.MapClaims {
 // identitityHandler identify the user
 func identityHandler(c *gin.Context) interface{} {
 	claims := jwtapple2.ExtractClaims(c)
-	id := claims[config.IdentityKey].(float64)
+
+	id, ok := claims[config.IdentityKey].(float64)
+
+	if !ok {
+		return nil
+	}
 
 	var user model.User
 	user = services.GetUserByID(uint(id))
