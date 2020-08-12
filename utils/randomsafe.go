@@ -53,12 +53,16 @@ func GenerateRandomStringURLSafe(n int) (string, error) {
 	return base64.URLEncoding.EncodeToString(b), err
 }
 
+// PasswordHash creates a password hash of the string given as parameter
+// For check the created hash is required to use ComparePasswordHash
+// DO NOT compare manually 2 hashes.
 func PasswordHash(password string) (string, error) {
 	passwordBytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
 
 	return string(passwordBytes), err
 }
 
+// ComparePasswordHash Compare password with Password Hash
 func ComparePasswordHash(h string, p string) bool {
 	hb := []byte(h)
 	pb := []byte(p)
