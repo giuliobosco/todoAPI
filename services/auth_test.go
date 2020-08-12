@@ -13,11 +13,23 @@ func TestGetUserByID(t *testing.T) {
 	mocket.Catcher.Logging = true
 	config.TestInit()
 
-	commonReply := []map[string]interface{}{{"id": 1, "email": "ee", "password": "ee"}}
+	commonReply := []map[string]interface{}{{"id": 1}}
 	mocket.Catcher.Reset().NewMock().WithQuery("SELECT").WithReply(commonReply)
 
 	var user model.User
 	user = GetUserByID(1)
 
 	assert.Equal(t, 1, int(user.ID))
+}
+
+func TestGetUserByIDNotFound(t *testing.T) {
+	config.TestInit()
+
+	commonReply := []map[string]interface{}{{}}
+	mocket.Catcher.Reset().NewMock().WithQuery("SELECT").WithReply(commonReply)
+
+	var user model.User
+	user = GetUserByID(1)
+
+	assert.Equal(t, 0, int(user.ID))
 }
