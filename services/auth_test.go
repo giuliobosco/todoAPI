@@ -4,22 +4,34 @@ import (
 	"testing"
 
 	"github.com/giuliobosco/todoAPI/config"
+	"github.com/giuliobosco/todoAPI/mock"
 	"github.com/giuliobosco/todoAPI/model"
 	mocket "github.com/selvatico/go-mocket"
 	"github.com/stretchr/testify/assert"
 )
 
+func getMapByUser(u model.User) []map[string]interface{} {
+	return []map[string]interface{}{{
+		"id":        u.ID,
+		"email":     u.Email,
+		"firstname": u.Firstname,
+		"lastname":  u.Lastname,
+		"active":    u.Active,
+	}}
+}
+
 func TestGetUserByID(t *testing.T) {
 	mocket.Catcher.Logging = true
 	config.TestInit()
 
-	commonReply := []map[string]interface{}{{"id": 1}}
+	expectedUser := mock.GetMockUser()
+	commonReply := getMapByUser(expectedUser)
 	mocket.Catcher.Reset().NewMock().WithQuery("SELECT").WithReply(commonReply)
 
-	var user model.User
-	user = GetUserByID(1)
+	var actualUser model.User
+	actualUser = GetUserByID(expectedUser.ID)
 
-	assert.Equal(t, 1, int(user.ID))
+	assert.Equal(t, expectedUser, actualUser)
 }
 
 func TestGetUserByIDNotFound(t *testing.T) {
@@ -28,8 +40,33 @@ func TestGetUserByIDNotFound(t *testing.T) {
 	commonReply := []map[string]interface{}{{}}
 	mocket.Catcher.Reset().NewMock().WithQuery("SELECT").WithReply(commonReply)
 
-	var user model.User
-	user = GetUserByID(1)
+	var actualUser model.User
+	actualUser = GetUserByID(1)
 
-	assert.Equal(t, 0, int(user.ID))
+	assert.Equal(t, 0, int(actualUser.ID))
+}
+
+func TestGetUserByEmail(t *testing.T) {
+	config.TestInit()
+
+	expectedUser := mock.GetMockUser()
+	commonReply := getMapByUser(expectedUser)
+	mocket.Catcher.Reset().NewMock().WithQuery("SELECT").WithReply(commonReply)
+
+	var actualUser model.User
+	actualUser = GetUserByEmail(expectedUser.Email)
+
+	assert.Equal(t, expectedUser, actualUser)
+}
+
+func TestGetUserByEmailNotFound(t *testing.T) {
+	config.TestInit()
+
+	commonReply := []map[string]interface{}{{}}
+	mocket.Catcher.Reset().NewMock().WithQuery("SELECT").WithReply(commonReply)
+
+	var actualUser model.User
+	actualUser = GetUserByEmail(mock.GetMockUser().Email)
+
+	assert.Equal(t, 0, int(actualUser.ID))
 }

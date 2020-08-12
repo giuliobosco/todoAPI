@@ -56,7 +56,7 @@ func identityHandler(c *gin.Context) interface{} {
 	id := claims[config.IdentityKey].(float64)
 
 	var user model.User
-	user = services.GetUserByID(int64(id))
+	user = services.GetUserByID(uint(id))
 
 	return user
 }
@@ -89,7 +89,7 @@ func emailAuthenticator(c *gin.Context) (interface{}, error) {
 	}
 
 	var result model.User
-	config.GetDB().Where("email = ?", loginVals.Email).First(&result)
+	result = services.GetUserByEmail(loginVals.Email)
 
 	if result.ID == 0 {
 		return nil, jwtapple2.ErrFailedAuthentication

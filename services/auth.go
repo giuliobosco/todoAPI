@@ -6,9 +6,17 @@ import (
 )
 
 // GetUserByID Gets the user by id
-func GetUserByID(id int64) model.User {
+func GetUserByID(id uint) model.User {
 	var user model.User
 	config.GetDB().Where("id = ?", id).First(&user)
+
+	return user
+}
+
+// GetUserByEmail Get the user by email
+func GetUserByEmail(email string) model.User {
+	var user model.User
+	config.GetDB().Where("email = ?", email).First(&user)
 
 	return user
 }
