@@ -3,6 +3,8 @@ package controller
 import (
 	"net/http"
 
+	"github.com/giuliobosco/todoAPI/services"
+
 	"github.com/giuliobosco/todoAPI/config"
 	"github.com/giuliobosco/todoAPI/model"
 
@@ -38,8 +40,7 @@ func FetchAllTask(c *gin.Context) {
 		return
 	}
 
-	var todos []model.Task
-	config.GetDB().Where("user_id = ?", user.ID).Order("created_at desc").Find(&todos)
+	todos := services.GetTasksByUser(user)
 
 	if len(todos) <= 0 {
 		c.JSON(http.StatusNotFound, gin.H{sMessage: config.STaskNotFound, sData: todos})
@@ -114,9 +115,7 @@ func UpdateTask(c *gin.Context) {
 		return
 	}
 
-	config.GetDB().Model(&todo).Update("title", newTodo.Title)
-	config.GetDB().Model(&todo).Update("description", newTodo.Description)
-	config.GetDB().Model(&todo).Update("completed", newTodo.Completed)
+	services.UpdateTask(&todo, &newTodo)
 
 	config.GetDB().First(&todo, todoID)
 
