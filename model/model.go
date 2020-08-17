@@ -23,7 +23,7 @@ type Task struct {
 	Title       string `json:"title"`       // title of the task
 	Description string `json:"description"` // description of the task
 	UserID      uint   `json:"userid"`      // id of the user owner of the task
-	Completed   bool   `json:"completed"`   // completed task if true
+	Done        bool   `json:"done"`        // completed task if true
 }
 
 // Base is the basic object with basic components

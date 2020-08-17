@@ -17,5 +17,5 @@ func GetTasksByUser(user *model.User) []model.Task {
 func UpdateTask(o, n *model.Task) {
 	config.GetDB().Model(o).Update("title", n.Title)
 	config.GetDB().Model(o).Update("description", n.Description)
-	config.GetDB().Model(o).Update("completed", n.Completed)
+	config.GetDB().Model(o).Update("done", n.Done)
 }
