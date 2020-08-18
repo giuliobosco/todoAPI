@@ -5,6 +5,7 @@ import (
 
 	"github.com/giuliobosco/todoAPI/config"
 	"github.com/giuliobosco/todoAPI/model"
+	"github.com/giuliobosco/todoAPI/services"
 
 	"github.com/badoux/checkmail"
 	"github.com/gin-gonic/gin"
@@ -61,6 +62,7 @@ func UserValidator(c *gin.Context, usePassword bool) (*model.User, error) {
 	return &u, nil
 }
 
+// ConfirmUserValidator confirmation of the user (email link)
 func ConfirmUserValidator(m map[string][]string) (*model.User, error) {
 	var missing []string
 
@@ -87,14 +89,7 @@ func ConfirmUserValidator(m map[string][]string) (*model.User, error) {
 	e := m["email"][0]
 	t := m["token"][0]
 
-	var userCheck model.User
-	config.GetDB().Where("email = ? AND verify_token = ?", e, t).First(&userCheck)
-
-	if userCheck.ID == 0 {
-		return nil, errors.New("Not valid request")
-	}
-
-	return &userCheck, nil
+	return services.VerifyUserEmailToken(e, t)
 }
 
 type PasswordRecovery struct {

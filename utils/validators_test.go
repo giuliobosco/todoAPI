@@ -8,8 +8,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gin-gonic/gin"
+	"github.com/giuliobosco/todoAPI/config"
 	"github.com/giuliobosco/todoAPI/model"
+
+	"github.com/gin-gonic/gin"
+	mocket "github.com/selvatico/go-mocket"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -120,4 +123,65 @@ func TestUserValidatorPasswordErrors(t *testing.T) {
 	for _, v := range m {
 		testUserValidatorErrors(t, v.Userr, v.ErrorStrigs, v.UsePassword)
 	}
+}
+
+// TestConfirmUserValidator
+func TestConfirmUserValidatorMissingEmail(t *testing.T) {
+	m := make(map[string][]string)
+	m["token"] = []string{"helo"}
+
+	u, err := ConfirmUserValidator(m)
+
+	assert.Nil(t, u)
+	assert.True(t, strings.Index(err.Error(), "email") >= 0, "Error message should contains: email")
+}
+
+func TestConfirmUserValidatorMissingToken(t *testing.T) {
+	m := make(map[string][]string)
+	m["email"] = []string{"helo"}
+
+	u, err := ConfirmUserValidator(m)
+
+	assert.Nil(t, u)
+	assert.True(t, strings.Index(err.Error(), "token") >= 0, "Error message should conains: token")
+}
+
+func TestConfirmUserValidatorMissingTokenEmail(t *testing.T) {
+	m := make(map[string][]string)
+
+	u, err := ConfirmUserValidator(m)
+
+	assert.Nil(t, u)
+	assert.True(t, strings.Index(err.Error(), "email") >= 0, "Error message should contains: email")
+	assert.True(t, strings.Index(err.Error(), "token") >= 0, "Error message should conains: token")
+}
+
+func TestConfirmUserValidatorDBerror(t *testing.T) {
+	config.TestInit()
+	m := make(map[string][]string)
+	m["email"] = []string{"a@b.ch"}
+	m["token"] = []string{"123qwe"}
+
+	dbResponse := []map[string]interface{}{{"id": 0}}
+	mocket.Catcher.Reset().NewMock().WithArgs("a@b.ch", "123qwe").WithReply(dbResponse)
+
+	u, err := ConfirmUserValidator(m)
+
+	assert.Nil(t, u)
+	assert.True(t, strings.Index(err.Error(), "Not valid request") >= 0, "Error message should contain: Not valid request")
+}
+
+func TestConfirmUserValidator(t *testing.T) {
+	config.TestInit()
+	m := make(map[string][]string)
+	m["email"] = []string{"a@b.ch"}
+	m["token"] = []string{"123qwe"}
+
+	expectedUser := model.User{Base: model.Base{ID: 1}, Email: "a@b.c"}
+	dbResponse := []map[string]interface{}{{"id": expectedUser.ID, "email": expectedUser.Email}}
+	mocket.Catcher.Reset().NewMock().WithArgs("a@b.ch", "123qwe").WithReply(dbResponse)
+	actualUser, err := ConfirmUserValidator(m)
+
+	assert.Nil(t, err)
+	assert.Equal(t, &expectedUser, actualUser)
 }

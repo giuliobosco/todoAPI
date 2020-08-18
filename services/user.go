@@ -1,6 +1,8 @@
 package services
 
 import (
+	"errors"
+
 	"github.com/giuliobosco/todoAPI/config"
 	"github.com/giuliobosco/todoAPI/model"
 )
@@ -16,4 +18,16 @@ func UpdateUserEmail(o, n *model.User) {
 func UpdateUserAnagraphic(o, n *model.User) {
 	config.GetDB().Model(&o).Update("firstname", n.Firstname)
 	config.GetDB().Model(&o).Update("lastname", n.Lastname)
+}
+
+// VerifyUserEmailToken checks the user email and tokens
+func VerifyUserEmailToken(e, t string) (*model.User, error) {
+	var userCheck model.User
+	config.GetDB().Where("email = ? AND verify_token = ?", e, t).First(&userCheck)
+
+	if userCheck.ID == 0 {
+		return nil, errors.New("Not valid request")
+	}
+
+	return &userCheck, nil
 }
