@@ -102,7 +102,7 @@ func testUserValidatorErrors(t *testing.T, u model.User, missing []string, usePa
 
 // userValidatorTestUnit automation unit for user validator test
 type userValidatorTestUnit struct {
-	Userr       model.User
+	Userr       interface{}
 	ErrorStrigs []string
 	UsePassword bool
 }
@@ -121,7 +121,7 @@ func TestUserValidatorPasswordErrors(t *testing.T) {
 	}
 
 	for _, v := range m {
-		testUserValidatorErrors(t, v.Userr, v.ErrorStrigs, v.UsePassword)
+		testUserValidatorErrors(t, v.Userr.(model.User), v.ErrorStrigs, v.UsePassword)
 	}
 }
 
@@ -185,3 +185,41 @@ func TestConfirmUserValidator(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, &expectedUser, actualUser)
 }
+
+// testUserValidatorErrors, automatically test error for validator (automated)
+func testPasswordRecoveryValidator(t *testing.T, unit userValidatorTestUnit) {
+	gin.SetMode(gin.TestMode)
+
+	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+
+	jsonStr, err := json.Marshal(unit.Userr)
+	assert.Nil(t, err)
+
+	jsonBytes := []byte(jsonStr)
+
+	req, err := http.NewRequest("POST", "/", bytes.NewBuffer(jsonBytes))
+	assert.Nil(t, err)
+
+	c.Request = req
+
+	actualUser, err := PasswordRecoveryValidator(c)
+
+	assert.Nil(t, actualUser)
+
+	for _, v := range unit.ErrorStrigs {
+		assert.True(t, strings.Index(err.Error(), v) >= 0, "Error message should contains:"+v)
+	}
+}
+
+// TestUserValidatorPasswordErrors auto test all possible errors for userValidator
+func TestPasswordRecoveryValidatorErrors(t *testing.T) {
+	m := []userValidatorTestUnit{
+		{PasswordRecovery{Email: "email", Token: "token"}, []string{"new_password"}, true},
+	}
+
+	for _, v := range m {
+		testPasswordRecoveryValidator(t, v)
+	}
+}
+
+// TODO finishes this tests
