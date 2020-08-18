@@ -2,25 +2,37 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"os"
 
 	"github.com/giuliobosco/todoAPI/config"
 	"github.com/giuliobosco/todoAPI/migration"
 	"github.com/giuliobosco/todoAPI/route"
+	"github.com/giuliobosco/todoAPI/utils"
 
 	"github.com/gin-gonic/gin"
 )
 
 // Init initialize the application
 func init() {
-	db := config.Init()
-	migration.Migrate(db)
+	utils.SetTesting(flag.Lookup("test.v") != nil)
+
+	if utils.IsTesting() {
+		config.TestInit()
+	} else {
+		db := config.Init()
+		migration.Migrate(db)
+	}
 }
 
 // main starts the app.
 func main() {
-	gin.SetMode(gin.ReleaseMode)
+	if utils.IsTesting() {
+		gin.SetMode(gin.TestMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
 
 	router := route.SetupRoutes()
 
