@@ -23,9 +23,7 @@ func SetupRoutes() *gin.Engine {
 		log.Fatal("JWT Error:" + err.Error())
 	}
 
-	router.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOK, config.SWelcome)
-	})
+	router.GET("/", baseRoute)
 
 	v1 := router.Group("/v1")
 	{
@@ -69,4 +67,15 @@ func SetupRoutes() *gin.Engine {
 	}
 
 	return router
+}
+
+// baseRoute handle the GET /
+func baseRoute(c *gin.Context) {
+	c.String(http.StatusOK, config.SWelcome)
+}
+
+// SetupTestRouter prepare a test router
+func SetupTestRouter() *gin.Engine {
+	gin.SetMode(gin.TestMode)
+	return gin.Default()
 }
