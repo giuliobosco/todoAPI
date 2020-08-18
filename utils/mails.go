@@ -16,6 +16,7 @@ var (
 	smtpPassword = os.Getenv("SMTP_PASSWORD")
 )
 
+// UserConfirmationSendMail sends confirmation mail
 func UserConfirmationSendMail(user *model.User) {
 	auth := smtp.PlainAuth("", smtpUsername, smtpPassword, smtpServer)
 
@@ -28,6 +29,7 @@ func UserConfirmationSendMail(user *model.User) {
 	}
 }
 
+// UserPasswordRecoverySendMail sends password recovery mail
 func UserPasswordRecoverySendMail(user *model.User) {
 	auth := smtp.PlainAuth("", smtpUsername, smtpPassword, smtpServer)
 

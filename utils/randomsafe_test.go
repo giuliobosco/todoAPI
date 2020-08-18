@@ -11,6 +11,7 @@ const (
 	stringLength   = 12 // Length of the generated strings
 )
 
+// TestGenerateRandomBytes tests random generation
 func TestGenerateRandomBytes(t *testing.T) {
 	for i := 0; i < repeetForTimes; i++ {
 		b, err := GenerateRandomBytes(i)
@@ -20,6 +21,7 @@ func TestGenerateRandomBytes(t *testing.T) {
 	}
 }
 
+// TestPasswordHashComparation tests the comparation of the password with hash
 func TestPasswordHashAndComparation(t *testing.T) {
 	for i := 0; i < repeetForTimes; i++ {
 		p, err := GenerateRandomString(stringLength)
