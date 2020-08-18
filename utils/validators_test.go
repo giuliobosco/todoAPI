@@ -215,6 +215,12 @@ func testPasswordRecoveryValidator(t *testing.T, unit userValidatorTestUnit) {
 func TestPasswordRecoveryValidatorErrors(t *testing.T) {
 	m := []userValidatorTestUnit{
 		{PasswordRecovery{Email: "email", Token: "token"}, []string{"new_password"}, true},
+		{PasswordRecovery{Email: "email", NewPassword: "new_password"}, []string{"token"}, true},
+		{PasswordRecovery{NewPassword: "new_password", Token: "token"}, []string{"email"}, true},
+		{PasswordRecovery{NewPassword: "new_password"}, []string{"email", "token"}, true},
+		{PasswordRecovery{Email: "email"}, []string{"new_password", "token"}, true},
+		{PasswordRecovery{Token: "token"}, []string{"new_password", "email"}, true},
+		{PasswordRecovery{}, []string{"new_password", "email", "token"}, true},
 	}
 
 	for _, v := range m {
@@ -222,4 +228,62 @@ func TestPasswordRecoveryValidatorErrors(t *testing.T) {
 	}
 }
 
-// TODO finishes this tests
+// TestPasswordRecoveryValidatorDBerrors test the function with query error
+func TestPasswordRecoveryValidatorDBerrors(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	config.TestInit()
+
+	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+
+	pr := PasswordRecovery{Email: "a@b.ch", Token: "Token", NewPassword: "new_password"}
+
+	jsonStr, err := json.Marshal(pr)
+	assert.Nil(t, err)
+
+	jsonBytes := []byte(jsonStr)
+
+	req, err := http.NewRequest("POST", "/", bytes.NewBuffer(jsonBytes))
+	assert.Nil(t, err)
+
+	c.Request = req
+
+	expectedUser := model.User{Base: model.Base{ID: 0}}
+	dbResponse := []map[string]interface{}{{"id": expectedUser.ID}}
+	mocket.Catcher.Reset().NewMock().WithArgs(pr.Email, pr.Token).WithReply(dbResponse)
+
+	actualUser, err := PasswordRecoveryValidator(c)
+	expectedUser.Password = pr.NewPassword
+
+	assert.Nil(t, actualUser)
+	assert.True(t, strings.Index(err.Error(), config.SUserPasswordRecoveryError) >= 0, "Error message should cotains: "+config.SUserPasswordRecoveryError)
+}
+
+// TestPasswordRecoveryValidatorDB test the function with query, no errors
+func TestPasswordRecoveryValidatorDB(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	config.TestInit()
+
+	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+
+	pr := PasswordRecovery{Email: "a@b.ch", Token: "Token", NewPassword: "new_password"}
+
+	jsonStr, err := json.Marshal(pr)
+	assert.Nil(t, err)
+
+	jsonBytes := []byte(jsonStr)
+
+	req, err := http.NewRequest("POST", "/", bytes.NewBuffer(jsonBytes))
+	assert.Nil(t, err)
+
+	c.Request = req
+
+	expectedUser := model.User{Base: model.Base{ID: 1}, Email: "a@b.c"}
+	dbResponse := []map[string]interface{}{{"id": expectedUser.ID, "email": expectedUser.Email}}
+	mocket.Catcher.Reset().NewMock().WithArgs(pr.Email, pr.Token).WithReply(dbResponse)
+
+	actualUser, err := PasswordRecoveryValidator(c)
+	expectedUser.Password = pr.NewPassword
+
+	assert.Nil(t, err)
+	assert.Equal(t, &expectedUser, actualUser)
+}

@@ -92,12 +92,14 @@ func ConfirmUserValidator(m map[string][]string) (*model.User, error) {
 	return services.VerifyUserEmailToken(e, t)
 }
 
+// PasswordRecovery used for context checks
 type PasswordRecovery struct {
 	Email       string `json:"email"`
 	Token       string `json:"token"`
 	NewPassword string `json:"new_password"`
 }
 
+// PasswordRecoveryValidator checks the password recovey validation, returns user with new password
 func PasswordRecoveryValidator(c *gin.Context) (*model.User, error) {
 	var missing []string
 
@@ -128,15 +130,15 @@ func PasswordRecoveryValidator(c *gin.Context) (*model.User, error) {
 
 		return nil, errors.New(errorString)
 	}
-	var user model.User
-	config.GetDB().Where("email = ? AND verify_token = ?", pr.Email, pr.Token).First(&user)
 
-	if user.ID == 0 {
+	user, err := services.VerifyUserEmailToken(pr.Email, pr.Token)
+
+	if err != nil {
 		return nil, errors.New(config.SUserPasswordRecoveryError)
 	}
 
 	user.VerifyToken = ""
 	user.Password = pr.NewPassword
 
-	return &user, nil
+	return user, nil
 }
