@@ -45,6 +45,71 @@ func TestPayload(t *testing.T) {
 }
 
 // ################# TESTS
+// identityHandler()
+
+// TestIdentityHandlerNoId test identityHandler function without id
+func TestIdentityHandlerNoId(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+
+	i := identityHandler(c)
+
+	assert.Nil(t, i)
+}
+
+// TestIdentityHandler test identityHandler function with id
+func TestIdentityHandler(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	config.TestInit()
+	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+
+	expectedUser := mock.GetMockUser(false)
+	claims := jwtapple2.MapClaims{"id": 1.0}
+	c.Set("JWT_PAYLOAD", claims)
+
+	dbResponse := mock.GetMapArrayByUser(expectedUser)
+	mocket.Catcher.Reset().NewMock().WithQuery(`SELECT * FROM "users"`).WithReply(dbResponse)
+	actualUser := identityHandler(c)
+
+	assert.Equal(t, expectedUser, actualUser)
+}
+
+// ################# TESTS
+// authenticator()
+
+// TestAuthenticatorNoType tests authenticator without the auth type
+func TestAuthenticatorNoType(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+
+	req, err := http.NewRequest("POST", "/", nil)
+	assert.Nil(t, err)
+
+	c.Request = req
+
+	i, err := authenticator(c)
+
+	assert.Nil(t, i)
+	assert.Equal(t, config.SMissingAuthType, err.Error())
+}
+
+// TestAuthenticatorEmail tests authenticator via email
+func TestAuthenticatorEmail(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+
+	req, err := http.NewRequest("POST", "/?type=email", nil)
+	assert.Nil(t, err)
+
+	c.Request = req
+
+	i, err := authenticator(c)
+
+	assert.Empty(t, i)
+	assert.Equal(t, jwtapple2.ErrMissingLoginValues.Error(), err.Error())
+}
+
+// ################# TESTS
 // emailAuthenticator()
 
 // TestEmailAuthenticatorNoData test withoud request data
