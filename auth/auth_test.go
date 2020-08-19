@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/giuliobosco/todoAPI/config"
 	"github.com/giuliobosco/todoAPI/mock"
@@ -18,6 +20,29 @@ import (
 	mocket "github.com/selvatico/go-mocket"
 	"github.com/stretchr/testify/assert"
 )
+
+// ################# TESTS
+// payload()
+
+// TestPayloadEmpty payload function empty data
+func TestPayloadEmpty(t *testing.T) {
+	d := ""
+
+	expected := jwtapple2.MapClaims{}
+	actual := payload(&d)
+
+	assert.Equal(t, expected, actual)
+}
+
+// TestPayload payload function with user
+func TestPayload(t *testing.T) {
+	d := mock.GetMockUser(false)
+
+	expected := jwtapple2.MapClaims{"id": d.ID}
+	actual := payload(&d)
+
+	assert.Equal(t, expected, actual)
+}
 
 // ################# TESTS
 // emailAuthenticator()
@@ -243,6 +268,7 @@ func TestAuthorizatorNotActive(t *testing.T) {
 	assert.False(t, b)
 }
 
+// TestAuthorizator test authorizator() with working user
 func TestAuthorizator(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	c, _ := gin.CreateTestContext(httptest.NewRecorder())
@@ -252,4 +278,47 @@ func TestAuthorizator(t *testing.T) {
 	b := authorizator(d, c)
 
 	assert.True(t, b)
+}
+
+// ################# TESTS
+// unauthorized()
+
+// TestUnauthorized tests unauthorized() with differentes codes
+func TestUnauthorized(t *testing.T) {
+	codes := []int{400, 401}
+	for _, v := range codes {
+		gin.SetMode(gin.TestMode)
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+
+		code := v
+		message := testutils.RandomString12()
+
+		unauthorized(c, code, message)
+
+		assert.Equal(t, code, w.Code)
+		assert.True(t, strings.Index(w.Body.String(), message) > 0, "Response should contains:"+message)
+	}
+}
+
+// ################# TESTS
+// loginResponse()
+
+// TestLoginResponse tests unauthorized() with differentes codes
+func TestLoginResponse(t *testing.T) {
+	codes := []int{400, 401}
+	for _, v := range codes {
+		gin.SetMode(gin.TestMode)
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+
+		code := v
+		token := testutils.RandomString12()
+		expire := time.Now()
+
+		loginResponse(c, code, token, expire)
+
+		assert.Equal(t, code, w.Code)
+		assert.True(t, strings.Index(w.Body.String(), token) > 0, "Response should contains:"+token)
+	}
 }
