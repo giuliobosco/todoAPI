@@ -2,9 +2,9 @@
 package main
 
 import (
-	"flag"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/giuliobosco/todoAPI/config"
 	"github.com/giuliobosco/todoAPI/migration"
@@ -16,7 +16,7 @@ import (
 
 // Init initialize the application
 func init() {
-	utils.SetTesting(flag.Lookup("test.v") != nil)
+	utils.SetTesting(strings.Index(os.Args[0], ".test") >= 0)
 
 	if utils.IsTesting() {
 		config.TestInit()
