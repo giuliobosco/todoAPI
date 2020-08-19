@@ -1,8 +1,6 @@
 package auth
 
 import (
-	"bytes"
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -59,9 +57,8 @@ func TestIdentityHandlerNoId(t *testing.T) {
 
 // TestIdentityHandler test identityHandler function with id
 func TestIdentityHandler(t *testing.T) {
-	gin.SetMode(gin.TestMode)
 	config.TestInit()
-	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+	c := tu.GetContext()
 
 	expectedUser := mock.GetMockUser(false)
 	claims := jwtapple2.MapClaims{"id": 1.0}
@@ -79,8 +76,7 @@ func TestIdentityHandler(t *testing.T) {
 
 // TestAuthenticatorNoType tests authenticator without the auth type
 func TestAuthenticatorNoType(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+	c := tu.GetContext()
 
 	req, err := http.NewRequest("POST", "/", nil)
 	assert.Nil(t, err)
@@ -95,8 +91,7 @@ func TestAuthenticatorNoType(t *testing.T) {
 
 // TestAuthenticatorEmail tests authenticator via email
 func TestAuthenticatorEmail(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+	c := tu.GetContext()
 
 	req, err := http.NewRequest("POST", "/?type=email", nil)
 	assert.Nil(t, err)
@@ -114,16 +109,9 @@ func TestAuthenticatorEmail(t *testing.T) {
 
 // TestEmailAuthenticatorNoData test withoud request data
 func TestEmailAuthenticatorNoData(t *testing.T) {
-	gin.SetMode(gin.TestMode)
 	config.TestInit()
 
-	c, _ := gin.CreateTestContext(httptest.NewRecorder())
-
-	//loginVals := model.Base{} //mock.GetLoginVals(mock.GetMockUser(true))
-	//jsonStr, err := json.Marshal(loginVals)
-	//assert.Nil(t, err)
-
-	//jsonBytes := []byte(jsonStr)
+	c := tu.GetContext()
 
 	req, err := http.NewRequest("POST", "/", nil)
 	assert.Nil(t, err)
@@ -138,18 +126,11 @@ func TestEmailAuthenticatorNoData(t *testing.T) {
 
 // TestEmailAuthenticatorWrongEmail test with wrong email
 func TestEmailAuthenticatorWrongEmail(t *testing.T) {
-	gin.SetMode(gin.TestMode)
 	config.TestInit()
-
-	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+	c := tu.GetContext()
 
 	loginVals := mock.GetLoginVals(mock.GetMockUser(true))
-	jsonStr, err := json.Marshal(loginVals)
-	assert.Nil(t, err)
-
-	jsonBytes := []byte(jsonStr)
-
-	req, err := http.NewRequest("POST", "/", bytes.NewReader(jsonBytes))
+	req, err := tu.GetRequestPost(loginVals, "/")
 	assert.Nil(t, err)
 
 	c.Request = req
@@ -165,20 +146,14 @@ func TestEmailAuthenticatorWrongEmail(t *testing.T) {
 
 // TestEmailAuthenticatorNotActive with not active user
 func TestEmailAuthenticatorNotActive(t *testing.T) {
-	gin.SetMode(gin.TestMode)
 	config.TestInit()
 
-	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+	c := tu.GetContext()
 
 	expectedUser := mock.GetMockUser(true)
 	expectedUser.Active = false
 	loginVals := mock.GetLoginVals(expectedUser)
-	jsonStr, err := json.Marshal(loginVals)
-	assert.Nil(t, err)
-
-	jsonBytes := []byte(jsonStr)
-
-	req, err := http.NewRequest("POST", "/", bytes.NewReader(jsonBytes))
+	req, err := tu.GetRequestPost(loginVals, "/")
 	assert.Nil(t, err)
 
 	c.Request = req
@@ -193,20 +168,13 @@ func TestEmailAuthenticatorNotActive(t *testing.T) {
 
 // TestEmailAuthenticatorWrongPassword with wrong password
 func TestEmailAuthenticatorWrongPassword(t *testing.T) {
-	gin.SetMode(gin.TestMode)
 	config.TestInit()
-
-	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+	c := tu.GetContext()
 
 	expectedUser := mock.GetMockUser(true)
 	expectedUser.Active = true
 	loginVals := mock.GetLoginVals(expectedUser)
-	jsonStr, err := json.Marshal(loginVals)
-	assert.Nil(t, err)
-
-	jsonBytes := []byte(jsonStr)
-
-	req, err := http.NewRequest("POST", "/", bytes.NewReader(jsonBytes))
+	req, err := tu.GetRequestPost(loginVals, "/")
 	assert.Nil(t, err)
 
 	c.Request = req
@@ -221,10 +189,8 @@ func TestEmailAuthenticatorWrongPassword(t *testing.T) {
 
 // TestEmailAuthenticatorNoToken without token
 func TestEmailAuthenticatorNoToken(t *testing.T) {
-	gin.SetMode(gin.TestMode)
 	config.TestInit()
-
-	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+	c := tu.GetContext()
 
 	expectedUser := mock.GetMockUser(true)
 	expectedUser.Active = true
@@ -234,12 +200,7 @@ func TestEmailAuthenticatorNoToken(t *testing.T) {
 	expectedUser.Password, e = utils.PasswordHash(expectedUser.Password)
 	assert.Nil(t, e)
 
-	jsonStr, err := json.Marshal(loginVals)
-	assert.Nil(t, err)
-
-	jsonBytes := []byte(jsonStr)
-
-	req, err := http.NewRequest("POST", "/", bytes.NewReader(jsonBytes))
+	req, err := tu.GetRequestPost(loginVals, "/")
 	assert.Nil(t, err)
 
 	c.Request = req
@@ -256,10 +217,8 @@ func TestEmailAuthenticatorNoToken(t *testing.T) {
 
 // TestEmailAuthenticatorWithToken with token
 func TestEmailAuthenticatorWithToken(t *testing.T) {
-	gin.SetMode(gin.TestMode)
 	config.TestInit()
-
-	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+	c := tu.GetContext()
 
 	expectedUser := mock.GetMockUser(true)
 	expectedUser.Active = true
@@ -269,12 +228,7 @@ func TestEmailAuthenticatorWithToken(t *testing.T) {
 	expectedUser.Password, e = utils.PasswordHash(expectedUser.Password)
 	assert.Nil(t, e)
 
-	jsonStr, err := json.Marshal(loginVals)
-	assert.Nil(t, err)
-
-	jsonBytes := []byte(jsonStr)
-
-	req, err := http.NewRequest("POST", "/", bytes.NewReader(jsonBytes))
+	req, err := tu.GetRequestPost(loginVals, "/")
 	assert.Nil(t, err)
 
 	c.Request = req
@@ -299,9 +253,7 @@ func TestEmailAuthenticatorWithToken(t *testing.T) {
 
 // TestAuthorizatorNoData test authorizator() without data
 func TestAuthorizatorNoData(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-
-	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+	c := tu.GetContext()
 
 	d := ""
 
@@ -312,8 +264,7 @@ func TestAuthorizatorNoData(t *testing.T) {
 
 // TestAuthorizatorID0 test authorizator() with user id 0
 func TestAuthorizatorID0(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+	c := tu.GetContext()
 
 	d := mock.GetMockUserID0(false)
 	b := authorizator(d, c)
@@ -323,8 +274,7 @@ func TestAuthorizatorID0(t *testing.T) {
 
 // TestAuthorizatorNotActive test authorizator() with not active user
 func TestAuthorizatorNotActive(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+	c := tu.GetContext()
 
 	d := mock.GetMockUser(false)
 	d.Active = false
@@ -335,8 +285,7 @@ func TestAuthorizatorNotActive(t *testing.T) {
 
 // TestAuthorizator test authorizator() with working user
 func TestAuthorizator(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+	c := tu.GetContext()
 
 	d := mock.GetMockUser(false)
 	d.Active = true
@@ -352,9 +301,7 @@ func TestAuthorizator(t *testing.T) {
 func TestUnauthorized(t *testing.T) {
 	codes := []int{400, 401}
 	for _, v := range codes {
-		gin.SetMode(gin.TestMode)
-		w := httptest.NewRecorder()
-		c, _ := gin.CreateTestContext(w)
+		w, c := tu.GetRecorderContext()
 
 		code := v
 		message := tu.RandomString12()
@@ -373,9 +320,7 @@ func TestUnauthorized(t *testing.T) {
 func TestLoginResponse(t *testing.T) {
 	codes := []int{400, 401}
 	for _, v := range codes {
-		gin.SetMode(gin.TestMode)
-		w := httptest.NewRecorder()
-		c, _ := gin.CreateTestContext(w)
+		w, c := tu.GetRecorderContext()
 
 		code := v
 		token := tu.RandomString12()

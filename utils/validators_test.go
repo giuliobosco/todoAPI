@@ -1,16 +1,13 @@
 package utils
 
 import (
-	"bytes"
-	"encoding/json"
-	"net/http"
-	"net/http/httptest"
 	"strings"
 	"testing"
 
 	"github.com/giuliobosco/todoAPI/config"
 	"github.com/giuliobosco/todoAPI/mock"
 	"github.com/giuliobosco/todoAPI/model"
+	"github.com/giuliobosco/todoAPI/tu"
 
 	"github.com/gin-gonic/gin"
 	mocket "github.com/selvatico/go-mocket"
@@ -34,15 +31,11 @@ func TestEmailValidator(t *testing.T) {
 
 // TestUserValidator full user with password
 func TestUserValidatorPassword(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-
-	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+	c := tu.GetContext()
 
 	expectedUser := mock.GetMockUser(true)
 
-	jsonStr, _ := json.Marshal(expectedUser)
-	var jsonBytes = []byte(jsonStr)
-	req, _ := http.NewRequest("POST", "/", bytes.NewBuffer(jsonBytes))
+	req, err := tu.GetRequestPost(expectedUser, "/")
 
 	c.Request = req
 
@@ -54,15 +47,11 @@ func TestUserValidatorPassword(t *testing.T) {
 
 // TestUserValidatorNoPassword, user without password
 func TestUserValidatorNoPassword(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-
-	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+	c := tu.GetContext()
 
 	expectedUser := mock.GetMockUser(false)
 
-	jsonStr, _ := json.Marshal(expectedUser)
-	var jsonBytes = []byte(jsonStr)
-	req, _ := http.NewRequest("POST", "/", bytes.NewBuffer(jsonBytes))
+	req, err := tu.GetRequestPost(expectedUser, "/")
 
 	c.Request = req
 
@@ -74,16 +63,9 @@ func TestUserValidatorNoPassword(t *testing.T) {
 
 // testUserValidatorErrors, automatically test error for validator (automated)
 func testUserValidatorErrors(t *testing.T, u model.User, missing []string, usePassword bool) {
-	gin.SetMode(gin.TestMode)
+	c := tu.GetContext()
 
-	c, _ := gin.CreateTestContext(httptest.NewRecorder())
-
-	jsonStr, err := json.Marshal(u)
-	assert.Nil(t, err)
-
-	jsonBytes := []byte(jsonStr)
-
-	req, err := http.NewRequest("POST", "/", bytes.NewBuffer(jsonBytes))
+	req, err := tu.GetRequestPost(u, "/")
 	assert.Nil(t, err)
 
 	c.Request = req
@@ -185,16 +167,9 @@ func TestConfirmUserValidator(t *testing.T) {
 
 // testUserValidatorErrors, automatically test error for validator (automated)
 func testPasswordRecoveryValidator(t *testing.T, unit userValidatorTestUnit) {
-	gin.SetMode(gin.TestMode)
+	c := tu.GetContext()
 
-	c, _ := gin.CreateTestContext(httptest.NewRecorder())
-
-	jsonStr, err := json.Marshal(unit.Userr)
-	assert.Nil(t, err)
-
-	jsonBytes := []byte(jsonStr)
-
-	req, err := http.NewRequest("POST", "/", bytes.NewBuffer(jsonBytes))
+	req, err := tu.GetRequestPost(unit.Userr, "/")
 	assert.Nil(t, err)
 
 	c.Request = req
@@ -227,19 +202,13 @@ func TestPasswordRecoveryValidatorErrors(t *testing.T) {
 
 // TestPasswordRecoveryValidatorDBerrors test the function with query error
 func TestPasswordRecoveryValidatorDBerrors(t *testing.T) {
-	gin.SetMode(gin.TestMode)
 	config.TestInit()
 
-	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+	c := tu.GetContext()
 
 	pr := PasswordRecovery{Email: "a@b.ch", Token: "Token", NewPassword: "new_password"}
 
-	jsonStr, err := json.Marshal(pr)
-	assert.Nil(t, err)
-
-	jsonBytes := []byte(jsonStr)
-
-	req, err := http.NewRequest("POST", "/", bytes.NewBuffer(jsonBytes))
+	req, err := tu.GetRequestPost(pr, "/")
 	assert.Nil(t, err)
 
 	c.Request = req
@@ -260,16 +229,11 @@ func TestPasswordRecoveryValidatorDB(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	config.TestInit()
 
-	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+	c := tu.GetContext()
 
 	pr := PasswordRecovery{Email: "a@b.ch", Token: "Token", NewPassword: "new_password"}
 
-	jsonStr, err := json.Marshal(pr)
-	assert.Nil(t, err)
-
-	jsonBytes := []byte(jsonStr)
-
-	req, err := http.NewRequest("POST", "/", bytes.NewBuffer(jsonBytes))
+	req, err := tu.GetRequestPost(pr, "/")
 	assert.Nil(t, err)
 
 	c.Request = req

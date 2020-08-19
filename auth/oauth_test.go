@@ -2,12 +2,11 @@ package auth
 
 import (
 	"net/http"
-	"net/http/httptest"
 	"os"
 	"os/exec"
 	"testing"
 
-	"github.com/gin-gonic/gin"
+	"github.com/giuliobosco/todoAPI/tu"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -47,9 +46,7 @@ func TestSetupOAuth(t *testing.T) {
 func TestOAuthURL(t *testing.T) {
 	SetupOAuth("../creds.json")
 
-	gin.SetMode(gin.TestMode)
-	w := httptest.NewRecorder()
-	c, _ := gin.CreateTestContext(w)
+	w, c := tu.GetRecorderContext()
 
 	req, _ := http.NewRequest("GET", "/", nil)
 
@@ -67,9 +64,7 @@ func TestOAuthURL(t *testing.T) {
 // TestOauthAuthenticator tests OAuthAuthenticator without code param
 func TestOauthAuthenticatorNoCodeParam(t *testing.T) {
 	SetupOAuth("../creds.json")
-	gin.SetMode(gin.TestMode)
-	w := httptest.NewRecorder()
-	c, _ := gin.CreateTestContext(w)
+	c := tu.GetContext()
 
 	req, _ := http.NewRequest("GET", "/", nil)
 
