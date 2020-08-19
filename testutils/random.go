@@ -28,7 +28,7 @@ func GenerateRandomBytes(n int) ([]byte, error) {
 // number generator fails to function correctly, in which
 // case the caller should not continue.
 func GenerateRandomString(n int) (string, error) {
-	const letters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-"
+	const letters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
 	bytes, err := GenerateRandomBytes(n)
 
