@@ -3,11 +3,12 @@ package services
 import (
 	"testing"
 
+	"github.com/giuliobosco/todoAPI/config"
+	"github.com/giuliobosco/todoAPI/mock"
+	"github.com/giuliobosco/todoAPI/model"
+
 	mocket "github.com/selvatico/go-mocket"
 	"github.com/stretchr/testify/assert"
-
-	"github.com/giuliobosco/todoAPI/config"
-	"github.com/giuliobosco/todoAPI/model"
 )
 
 // TestGetTaskByUser test the function with mock db
@@ -15,15 +16,9 @@ func TestGetTaskByUser(t *testing.T) {
 	config.TestInit()
 
 	user := model.User{Base: model.Base{ID: 10}}
-	expectedTasks := []model.Task{
-		{Title: "Tit1"},
-		{Title: "Tit2"},
-	}
+	expectedTasks := mock.GetMockTasks()
 
-	dbResponse := []map[string]interface{}{
-		{"title": expectedTasks[0].Title},
-		{"title": expectedTasks[1].Title},
-	}
+	dbResponse := mock.GetMapArrayByTasks(expectedTasks)
 	mocket.Catcher.Reset().NewMock().WithQuery("SELECT").WithReply(dbResponse)
 	actualTasks := GetTasksByUser(&user)
 
@@ -34,8 +29,11 @@ func TestGetTaskByUser(t *testing.T) {
 func TestUpdateTask(t *testing.T) {
 	config.TestInit()
 
-	o := model.Task{Base: model.Base{ID: 10}, Title: "title", Description: "desciption"}
-	n := model.Task{Title: "new_title", Description: "new_description", Done: true}
+	o := mock.GetMockTask()
+	n := mock.GetMockTask()
+	n.Title = "new_title"
+	n.Description = "new_description"
+	n.Done = !n.Done
 
 	mocket.Catcher.Reset().NewMock().WithQuery(`UPDATE "tasks" SET "title"`)
 	mocket.Catcher.NewMock().WithQuery(`UPDATE "tasks" SET "description"`)

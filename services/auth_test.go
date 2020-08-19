@@ -14,8 +14,8 @@ func TestGetUserByID(t *testing.T) {
 	mocket.Catcher.Logging = true
 	config.TestInit()
 
-	expectedUser := mock.GetMockUser()
-	commonReply := mock.GetMapByUser(expectedUser)
+	expectedUser := mock.GetMockUser(false)
+	commonReply := mock.GetMapArrayByUser(expectedUser)
 	mocket.Catcher.Reset().NewMock().WithQuery("SELECT").WithReply(commonReply)
 
 	var actualUser model.User
@@ -39,8 +39,8 @@ func TestGetUserByIDNotFound(t *testing.T) {
 func TestGetUserByEmail(t *testing.T) {
 	config.TestInit()
 
-	expectedUser := mock.GetMockUser()
-	commonReply := mock.GetMapByUser(expectedUser)
+	expectedUser := mock.GetMockUser(false)
+	commonReply := mock.GetMapArrayByUser(expectedUser)
 	mocket.Catcher.Reset().NewMock().WithQuery("SELECT").WithReply(commonReply)
 
 	var actualUser model.User
@@ -56,7 +56,7 @@ func TestGetUserByEmailNotFound(t *testing.T) {
 	mocket.Catcher.Reset().NewMock().WithQuery("SELECT").WithReply(commonReply)
 
 	var actualUser model.User
-	actualUser = GetUserByEmail(mock.GetMockUser().Email)
+	actualUser = GetUserByEmail(mock.GetMockUser(false).Email)
 
 	assert.Equal(t, 0, int(actualUser.ID))
 }

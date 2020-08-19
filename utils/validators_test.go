@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/giuliobosco/todoAPI/config"
+	"github.com/giuliobosco/todoAPI/mock"
 	"github.com/giuliobosco/todoAPI/model"
 
 	"github.com/gin-gonic/gin"
@@ -16,10 +17,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func getTestUser() model.User {
-	return model.User{Email: "a@b.ch", Password: "123qwe", Lastname: "lastname", Firstname: "firstname"}
-}
-
+// TestEmailValidator
 func TestEmailValidator(t *testing.T) {
 	// working email
 	email := "giuliobva@gmail.com"
@@ -40,7 +38,7 @@ func TestUserValidatorPassword(t *testing.T) {
 
 	c, _ := gin.CreateTestContext(httptest.NewRecorder())
 
-	expectedUser := getTestUser()
+	expectedUser := mock.GetMockUser(true)
 
 	jsonStr, _ := json.Marshal(expectedUser)
 	var jsonBytes = []byte(jsonStr)
@@ -60,8 +58,7 @@ func TestUserValidatorNoPassword(t *testing.T) {
 
 	c, _ := gin.CreateTestContext(httptest.NewRecorder())
 
-	expectedUser := getTestUser()
-	expectedUser.Password = ""
+	expectedUser := mock.GetMockUser(false)
 
 	jsonStr, _ := json.Marshal(expectedUser)
 	var jsonBytes = []byte(jsonStr)
