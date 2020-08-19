@@ -203,3 +203,53 @@ func TestEmailAuthenticatorWithToken(t *testing.T) {
 	assert.Equal(t, expectedUser.ID, user.ID)
 	assert.True(t, mocket.Catcher.Mocks[1].Triggered)
 }
+
+// ################# TESTS
+// emailAuthenticator()
+
+// TestAuthorizatorNoData test authorizator() without data
+func TestAuthorizatorNoData(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+
+	d := ""
+
+	b := authorizator(d, c)
+
+	assert.False(t, b)
+}
+
+// TestAuthorizatorID0 test authorizator() with user id 0
+func TestAuthorizatorID0(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+
+	d := mock.GetMockUserID0(false)
+	b := authorizator(d, c)
+
+	assert.False(t, b)
+}
+
+// TestAuthorizatorNotActive test authorizator() with not active user
+func TestAuthorizatorNotActive(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+
+	d := mock.GetMockUser(false)
+	d.Active = false
+	b := authorizator(d, c)
+
+	assert.False(t, b)
+}
+
+func TestAuthorizator(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+
+	d := mock.GetMockUser(false)
+	d.Active = true
+	b := authorizator(d, c)
+
+	assert.True(t, b)
+}
