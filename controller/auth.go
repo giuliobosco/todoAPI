@@ -153,6 +153,22 @@ func getUserByContext(c *gin.Context) (*model.User, error) {
 	if u.ID <= 0 {
 		return nil, errors.New(config.SUserInvalid)
 	}
+	u.Password = ""
+
+	return &u, nil
+}
+
+// getUserWithPasswordByContext load the user from the db
+// (via gin context) with password
+func getUserWithPasswordByContext(c *gin.Context) (*model.User, error) {
+	cl := jwtapple2.ExtractClaims(c)
+
+	var u model.User
+	config.GetDB().Where("id = ?", cl[config.IdentityKey]).First(&u)
+
+	if u.ID <= 0 {
+		return nil, errors.New(config.SUserInvalid)
+	}
 
 	return &u, nil
 }
@@ -176,7 +192,7 @@ type UpdatePasswordObj struct {
 
 // UpdatePassword function
 func UpdatePassword(c *gin.Context) {
-	user, err := getUserByContext(c)
+	user, err := getUserWithPasswordByContext(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
 		return

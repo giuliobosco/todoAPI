@@ -19,14 +19,13 @@ func FetchUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
 		return
 	}
-	user.Password = ""
 
 	c.JSON(http.StatusOK, user)
 }
 
 // UpdateUser update user
 func UpdateUser(c *gin.Context) {
-	dbUser, err := getUserByContext(c)
+	dbUser, err := getUserWithPasswordByContext(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
 		return
@@ -70,7 +69,7 @@ func UpdateUser(c *gin.Context) {
 
 // DeleteUser is the function for delete the user
 func DeleteUser(c *gin.Context) {
-	dbUser, err := getUserByContext(c)
+	dbUser, err := getUserWithPasswordByContext(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
 		return
