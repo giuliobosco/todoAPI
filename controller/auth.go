@@ -42,7 +42,10 @@ func RegisterEndPoint(c *gin.Context) {
 	}
 
 	config.GetDB().Save(&user)
-	utils.UserConfirmationSendMail(user)
+
+	if !utils.IsTesting() {
+		utils.UserConfirmationSendMail(user)
+	}
 
 	c.JSON(http.StatusCreated, gin.H{sMessage: config.SUserCreated})
 }
