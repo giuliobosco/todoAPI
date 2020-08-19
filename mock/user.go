@@ -2,19 +2,19 @@ package mock
 
 import (
 	"github.com/giuliobosco/todoAPI/model"
-	"github.com/giuliobosco/todoAPI/testutils"
+	"github.com/giuliobosco/todoAPI/tu"
 )
 
 // GetMockUserID0 build a user for tests with ID 0
 func GetMockUserID0(password bool) model.User {
 	u := model.User{
-		Email:     testutils.RandomEmail(),
-		Firstname: testutils.RandomString12(),
-		Lastname:  testutils.RandomString12(),
+		Email:     tu.RandomEmail(),
+		Firstname: tu.RandomString12(),
+		Lastname:  tu.RandomString12(),
 	}
 
 	if password {
-		u.Password = testutils.RandomString12()
+		u.Password = tu.RandomString12()
 	}
 
 	return u
@@ -23,7 +23,7 @@ func GetMockUserID0(password bool) model.User {
 // GetMockUser build a user for tests
 func GetMockUser(password bool) model.User {
 	u := GetMockUserID0(password)
-	u.ID = testutils.RandomUintNo0()
+	u.ID = tu.RandomUintNo0()
 
 	return u
 }

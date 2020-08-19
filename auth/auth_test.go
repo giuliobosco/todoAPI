@@ -12,7 +12,7 @@ import (
 	"github.com/giuliobosco/todoAPI/config"
 	"github.com/giuliobosco/todoAPI/mock"
 	"github.com/giuliobosco/todoAPI/model"
-	"github.com/giuliobosco/todoAPI/testutils"
+	"github.com/giuliobosco/todoAPI/tu"
 	"github.com/giuliobosco/todoAPI/utils"
 
 	jwtapple2 "github.com/appleboy/gin-jwt/v2"
@@ -263,7 +263,7 @@ func TestEmailAuthenticatorWithToken(t *testing.T) {
 
 	expectedUser := mock.GetMockUser(true)
 	expectedUser.Active = true
-	expectedUser.VerifyToken = testutils.RandomString12()
+	expectedUser.VerifyToken = tu.RandomString12()
 	loginVals := mock.GetLoginVals(expectedUser)
 	var e error
 	expectedUser.Password, e = utils.PasswordHash(expectedUser.Password)
@@ -357,7 +357,7 @@ func TestUnauthorized(t *testing.T) {
 		c, _ := gin.CreateTestContext(w)
 
 		code := v
-		message := testutils.RandomString12()
+		message := tu.RandomString12()
 
 		unauthorized(c, code, message)
 
@@ -378,7 +378,7 @@ func TestLoginResponse(t *testing.T) {
 		c, _ := gin.CreateTestContext(w)
 
 		code := v
-		token := testutils.RandomString12()
+		token := tu.RandomString12()
 		expire := time.Now()
 
 		loginResponse(c, code, token, expire)

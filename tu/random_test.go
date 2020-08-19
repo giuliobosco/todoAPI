@@ -1,4 +1,4 @@
-package testutils
+package tu
 
 import (
 	"testing"

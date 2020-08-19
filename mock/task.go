@@ -2,14 +2,14 @@ package mock
 
 import (
 	"github.com/giuliobosco/todoAPI/model"
-	"github.com/giuliobosco/todoAPI/testutils"
+	"github.com/giuliobosco/todoAPI/tu"
 )
 
 // GetMockTaskID0 build a mock task with ID 0
 func GetMockTaskID0() model.Task {
 	return model.Task{
-		Title:       testutils.RandomString12(),
-		Description: testutils.RandomString12(),
+		Title:       tu.RandomString12(),
+		Description: tu.RandomString12(),
 		Done:        false,
 	}
 }
@@ -17,7 +17,7 @@ func GetMockTaskID0() model.Task {
 // GetMockTask build a mock task
 func GetMockTask() model.Task {
 	t := GetMockTaskID0()
-	t.ID = testutils.RandomUintNo0()
+	t.ID = tu.RandomUintNo0()
 
 	return t
 }
@@ -33,8 +33,8 @@ func GetMockTasksID0() []model.Task {
 // GetMockTasks build an array of mock tasks
 func GetMockTasks() []model.Task {
 	a := GetMockTasksID0()
-	a[0].ID = testutils.RandomUintNo0()
-	a[1].ID = testutils.RandomUintNo0()
+	a[0].ID = tu.RandomUintNo0()
+	a[1].ID = tu.RandomUintNo0()
 
 	return a
 }

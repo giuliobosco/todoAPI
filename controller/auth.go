@@ -20,6 +20,7 @@ func RegisterEndPoint(c *gin.Context) {
 	user, err := utils.UserValidator(c, true)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
+		return
 	}
 
 	if err = emailCheck(user.Email); err != nil {
