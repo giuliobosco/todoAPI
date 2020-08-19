@@ -58,3 +58,14 @@ func TestGetMockUser(t *testing.T) {
 		assert.NotEmpty(t, u.Lastname)
 	}
 }
+
+func TestGetLoginVals(t *testing.T) {
+	for i := 0; i < runTests; i++ {
+		u := GetMockUser(true)
+
+		lv := GetLoginVals(u)
+
+		assert.Equal(t, u.Email, lv.Email)
+		assert.Equal(t, u.Password, lv.Password)
+	}
+}
