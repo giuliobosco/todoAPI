@@ -18,8 +18,8 @@ const sExpire string = config.SExpire
 const sToken string = config.SToken
 
 // SetupAuth Sets-up the authentication middleware
-func SetupAuth() (*jwtapple2.GinJWTMiddleware, error) {
-	SetupOAuth()
+func SetupAuth(credsFilePath string) (*jwtapple2.GinJWTMiddleware, error) {
+	SetupOAuth(credsFilePath)
 	authMiddleware, err := jwtapple2.New(&jwtapple2.GinJWTMiddleware{
 		Realm: "	apitodogo", // https://tools.ietf.org/html/rfc7235#section-2.2
 		Key:             []byte(config.Key),
@@ -87,6 +87,7 @@ func authenticator(c *gin.Context) (interface{}, error) {
 	return nil, errors.New(config.SNotValidAuthType)
 }
 
+// emailAuthenticator authenticate user via email address
 func emailAuthenticator(c *gin.Context) (interface{}, error) {
 	var loginVals model.User
 	if err := c.ShouldBindJSON(&loginVals); err != nil {

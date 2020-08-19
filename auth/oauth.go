@@ -38,8 +38,9 @@ var cred Credentials
 var conf *oauth2.Config
 var state string
 
-func SetupOAuth() {
-	file, err := ioutil.ReadFile("./creds.json")
+// SetupOAuth configures the oauth authentication
+func SetupOAuth(credsFilePath string) {
+	file, err := ioutil.ReadFile(credsFilePath)
 	if err != nil {
 		log.Printf("File error %v\n", err)
 		os.Exit(1)
@@ -60,12 +61,14 @@ func SetupOAuth() {
 	}
 }
 
-func OAuthUrl(c *gin.Context) {
+// OAuthURL returns the oauth URL
+func OAuthURL(c *gin.Context) {
 	var url string = conf.AuthCodeURL(state)
 
 	c.JSON(http.StatusOK, gin.H{"url": url})
 }
 
+// OAuthAuthenticator authenticate users via google oauth
 func OAuthAuthenticator(c *gin.Context) (interface{}, error) {
 	tok, err := conf.Exchange(oauth2.NoContext, c.Query("code"))
 	if err != nil {

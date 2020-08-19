@@ -17,7 +17,7 @@ import (
 // SetupRoutes create the router of the API Engine.
 func SetupRoutes() *gin.Engine {
 	router := gin.Default()
-	authMiddleware, err := auth.SetupAuth()
+	authMiddleware, err := auth.SetupAuth(config.CredsFilePath)
 
 	if err != nil {
 		log.Fatal("JWT Error:" + err.Error())
@@ -51,7 +51,7 @@ func SetupRoutes() *gin.Engine {
 		authGroup.POST("/login", authMiddleware.LoginHandler)
 		authGroup.POST("/logout", authMiddleware.LogoutHandler)
 
-		authGroup.GET("/oauth_url", auth.OAuthUrl)
+		authGroup.GET("/oauth_url", auth.OAuthURL)
 		authGroup.GET("/oauth", authMiddleware.LoginHandler)
 
 		authGroup.POST("/register", controller.RegisterEndPoint)

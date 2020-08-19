@@ -11,6 +11,12 @@ var (
 	URL = os.Getenv("URL")
 )
 
+// General Const
+const (
+	// CredsFilePath is the path of the creds file for oauth
+	CredsFilePath = "./creds.json"
+)
+
 // User Consts
 const (
 	// TokenLength is the length of the user activation token
