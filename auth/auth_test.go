@@ -57,15 +57,10 @@ func TestIdentityHandlerNoId(t *testing.T) {
 
 // TestIdentityHandler test identityHandler function with id
 func TestIdentityHandler(t *testing.T) {
-	config.TestInit()
 	c := tu.GetContext()
 
 	expectedUser := mock.GetMockUser(false)
-	claims := jwtapple2.MapClaims{"id": 1.0}
-	c.Set("JWT_PAYLOAD", claims)
-
-	dbResponse := mock.GetMapArrayByUser(expectedUser)
-	mocket.Catcher.Reset().NewMock().WithQuery(`SELECT * FROM "users"`).WithReply(dbResponse)
+	mock.ConfigClaims(c, expectedUser)
 	actualUser := identityHandler(c)
 
 	assert.Equal(t, expectedUser, actualUser)
