@@ -35,6 +35,7 @@ func UpdateUser(c *gin.Context) {
 	user, err = utils.UserValidator(c, false)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
+		return
 	}
 
 	if dbUser.Email != user.Email {
@@ -59,12 +60,14 @@ func UpdateUser(c *gin.Context) {
 
 		services.UpdateUserEmail(dbUser, user)
 
-		utils.UserConfirmationSendMail(user)
+		if !utils.IsTesting() {
+			utils.UserConfirmationSendMail(user)
+		}
 	}
 
 	services.UpdateUserAnagraphic(dbUser, user)
 
-	c.JSON(http.StatusCreated, gin.H{sMessage: config.SUserUpdated})
+	c.JSON(http.StatusOK, gin.H{sMessage: config.SUserUpdated})
 }
 
 // DeleteUser is the function for delete the user
