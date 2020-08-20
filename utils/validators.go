@@ -142,3 +142,17 @@ func PasswordRecoveryValidator(c *gin.Context) (*model.User, error) {
 
 	return user, nil
 }
+
+// TaskValidator validate task title
+func TaskValidator(c *gin.Context) (*model.Task, error) {
+	var t model.Task
+	if err := c.ShouldBindJSON(&t); err != nil {
+		return nil, err
+	}
+
+	if len(t.Title) == 0 {
+		return nil, errors.New("Missing: title")
+	}
+
+	return &t, nil
+}

@@ -46,6 +46,7 @@ func GetMapByTask(t model.Task) map[string]interface{} {
 		"title":       t.Title,
 		"description": t.Description,
 		"done":        t.Done,
+		"user_id":     t.UserID,
 	}
 }
 

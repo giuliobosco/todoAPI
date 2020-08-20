@@ -3,10 +3,10 @@ package controller
 import (
 	"net/http"
 
-	"github.com/giuliobosco/todoAPI/services"
-
 	"github.com/giuliobosco/todoAPI/config"
 	"github.com/giuliobosco/todoAPI/model"
+	"github.com/giuliobosco/todoAPI/services"
+	"github.com/giuliobosco/todoAPI/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,8 +21,8 @@ func CreateTask(c *gin.Context) {
 		return
 	}
 
-	var todo model.Task
-	if err = c.ShouldBindJSON(&todo); err != nil {
+	todo, err := utils.TaskValidator(c)
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
 		return
 	}
@@ -52,6 +52,45 @@ func FetchAllTask(c *gin.Context) {
 
 // FetchSingleTask is the function for fetch a single task by id
 func FetchSingleTask(c *gin.Context) {
+	user, err := getUserByContext(c)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
+		return
+	}
+
+	todoID := c.Param("id")
+
+	var todo model.Task
+	config.GetDB().First(&todo, todoID)
+
+	if len(todoID) <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{sError: config.STaskInvalid})
+		return
+	}
+
+	if todo.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{sMessage: config.STaskNotFound})
+		return
+	}
+
+	if todo.UserID != user.ID {
+		c.JSON(http.StatusUnauthorized, gin.H{sError: config.STaskUnauthorized})
+		return
+	}
+
+	c.JSON(http.StatusOK, todo)
+}
+
+// UpdateTask is the function for update a task by id
+func UpdateTask(c *gin.Context) {
+	user, err := getUserByContext(c)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
+		return
+	}
+
 	todoID := c.Param("id")
 
 	if len(todoID) <= 0 {
@@ -62,60 +101,23 @@ func FetchSingleTask(c *gin.Context) {
 	var todo model.Task
 	config.GetDB().First(&todo, todoID)
 
-	user, err := getUserByContext(c)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
-		return
-	}
-
-	if todo.UserID != user.ID {
-		c.JSON(http.StatusUnauthorized, gin.H{sError: config.STaskUnauthorized})
-		return
-	}
-
-	if todo.ID == 0 {
-		c.JSON(http.StatusNotFound, gin.H{sMessage: config.STaskNotFound})
-		return
-	}
-
-	c.JSON(http.StatusOK, todo)
-}
-
-// UpdateTask is the function for update a task by id
-func UpdateTask(c *gin.Context) {
-	todoID := c.Param("id")
-
-	if len(todoID) <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{sError: config.SUserInvalid})
-		return
-	}
-
-	var newTodo model.Task
-	if err := c.ShouldBindJSON(&newTodo); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
-		return
-	}
-
-	var todo model.Task
-	config.GetDB().First(&todo, todoID)
-
-	user, err := getUserByContext(c)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
-		return
-	}
-
-	if todo.UserID != user.ID {
-		c.JSON(http.StatusUnauthorized, gin.H{sError: config.STaskUnauthorized})
-		return
-	}
-
 	if todo.ID <= 0 {
 		c.JSON(http.StatusNotFound, gin.H{sMessage: config.STaskNotFound})
 		return
 	}
 
-	services.UpdateTask(&todo, &newTodo)
+	newTodo, err := utils.TaskValidator(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
+		return
+	}
+
+	if todo.UserID != user.ID {
+		c.JSON(http.StatusUnauthorized, gin.H{sError: config.STaskUnauthorized})
+		return
+	}
+
+	services.UpdateTask(&todo, newTodo)
 
 	config.GetDB().First(&todo, todoID)
 
@@ -124,29 +126,29 @@ func UpdateTask(c *gin.Context) {
 
 // DeleteTask is the function for delete a task by id
 func DeleteTask(c *gin.Context) {
-	var todo model.Task
-	todoID := c.Param("id")
-
-	if len(todoID) <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{sError: config.STaskNotFound})
-		return
-	}
-
-	config.GetDB().First(&todo, todoID)
-
 	user, err := getUserByContext(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{sError: err.Error()})
 		return
 	}
 
-	if todo.UserID != user.ID {
-		c.JSON(http.StatusUnauthorized, gin.H{sError: config.STaskUnauthorized})
+	var todo model.Task
+	todoID := c.Param("id")
+
+	if len(todoID) <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{sError: config.STaskInvalid})
 		return
 	}
 
+	config.GetDB().First(&todo, todoID)
+
 	if todo.ID == 0 {
 		c.JSON(http.StatusNotFound, gin.H{sMessage: config.STaskNotFound})
+		return
+	}
+
+	if todo.UserID != user.ID {
+		c.JSON(http.StatusUnauthorized, gin.H{sError: config.STaskUnauthorized})
 		return
 	}
 

@@ -248,3 +248,45 @@ func TestPasswordRecoveryValidatorDB(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, &expectedUser, actualUser)
 }
+
+// ################# TESTS
+// TaskValidator()
+
+// TestTaskValidatorMissingTitle test the function without title
+func TestTaskValidatorMissingTitle(t *testing.T) {
+	config.TestInit()
+
+	c := tu.GetContext()
+
+	expectedTask := mock.GetMockTaskID0()
+	expectedTask.Title = ""
+
+	req, err := tu.GetRequestPost(expectedTask, "/")
+	assert.Nil(t, err)
+
+	c.Request = req
+
+	actualTask, err := TaskValidator(c)
+
+	assert.Nil(t, actualTask)
+	assert.Contains(t, err.Error(), "Missing: title")
+}
+
+// TestTaskValidator test the function with all params
+func TestTaskValidator(t *testing.T) {
+	config.TestInit()
+
+	c := tu.GetContext()
+
+	expectedTask := mock.GetMockTaskID0()
+
+	req, err := tu.GetRequestPost(expectedTask, "/")
+	assert.Nil(t, err)
+
+	c.Request = req
+
+	actualTask, err := TaskValidator(c)
+
+	assert.Nil(t, err)
+	assert.Equal(t, &expectedTask, actualTask)
+}
