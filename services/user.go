@@ -31,3 +31,11 @@ func VerifyUserEmailToken(e, t string) (*model.User, error) {
 
 	return &userCheck, nil
 }
+
+// EmailExists checks if the email address exists in the db
+func EmailExists(email string) bool {
+	var u model.User
+	config.GetDB().First(&u, "email = ?", email)
+
+	return u.ID > 0
+}

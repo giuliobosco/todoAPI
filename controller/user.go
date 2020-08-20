@@ -43,8 +43,8 @@ func UpdateUser(c *gin.Context) {
 			return
 		}
 
-		if err = emailCheck(user.Email); err != nil {
-			c.JSON(http.StatusConflict, gin.H{sMessage: err.Error()})
+		if services.EmailExists(user.Email) {
+			c.JSON(http.StatusConflict, gin.H{sMessage: config.SUserEmailAlreadyExists})
 			return
 		}
 

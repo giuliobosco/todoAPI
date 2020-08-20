@@ -36,3 +36,25 @@ func TestVerifyUserEmailToken(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, &expectedUser, actualUser)
 }
+
+// TestEmailExistsTrue test func with db user
+func TestEmailExistsTrue(t *testing.T) {
+	u := mock.GetMockUser(false)
+	dbResponse := mock.GetMapArrayByUser(u)
+	mocket.Catcher.Reset().NewMock().WithArgs(u.Email).WithReply(dbResponse)
+
+	b := EmailExists(u.Email)
+
+	assert.True(t, b)
+}
+
+// TestEmailExists test func with no db user
+func TestEmailExists(t *testing.T) {
+	u := mock.GetMockUserID0(false)
+	dbResponse := mock.GetMapArrayByUser(u)
+	mocket.Catcher.Reset().NewMock().WithArgs(u.Email).WithReply(dbResponse)
+
+	b := EmailExists(u.Email)
+
+	assert.False(t, b)
+}

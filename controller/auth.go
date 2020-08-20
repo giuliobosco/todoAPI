@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/giuliobosco/todoAPI/config"
 	"github.com/giuliobosco/todoAPI/model"
+	"github.com/giuliobosco/todoAPI/services"
 	"github.com/giuliobosco/todoAPI/utils"
 )
 
@@ -23,8 +24,8 @@ func RegisterEndPoint(c *gin.Context) {
 		return
 	}
 
-	if err = emailCheck(user.Email); err != nil {
-		c.JSON(http.StatusConflict, gin.H{sMessage: err.Error()})
+	if services.EmailExists(user.Email) {
+		c.JSON(http.StatusConflict, gin.H{sMessage: config.SUserEmailAlreadyExists})
 		return
 	}
 
@@ -66,6 +67,7 @@ func ConfirmUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{sMessage: config.SUserConfirmed})
 }
 
+// getUserByEmailParam read the user from the db using the email as request param
 func getUserByEmailParam(c *gin.Context) (*model.User, error) {
 	p := c.Request.URL.Query()
 
@@ -83,6 +85,7 @@ func getUserByEmailParam(c *gin.Context) (*model.User, error) {
 	return &user, nil
 }
 
+// SendUserConfirmAgain send again the user confirmation, with new token
 func SendUserConfirmAgain(c *gin.Context) {
 	user, err := getUserByEmailParam(c)
 	if err != nil {
@@ -97,7 +100,10 @@ func SendUserConfirmAgain(c *gin.Context) {
 	}
 
 	config.GetDB().Model(user).Update("verify_token", user.VerifyToken)
-	utils.UserConfirmationSendMail(user)
+
+	if !utils.IsTesting() {
+		utils.UserConfirmationSendMail(user)
+	}
 
 	c.JSON(http.StatusOK, gin.H{sMessage: config.SUserSentConfirmationMailAgain})
 }
@@ -122,7 +128,10 @@ func RequestPasswordRecovery(c *gin.Context) {
 	}
 
 	config.GetDB().Model(user).Update(user)
-	utils.UserPasswordRecoverySendMail(user)
+
+	if !utils.IsTesting() {
+		utils.UserPasswordRecoverySendMail(user)
+	}
 
 	c.JSON(http.StatusOK, gin.H{sMessage: config.SUserPasswordRecoveryMailSent})
 }
@@ -148,6 +157,7 @@ func ExecutePasswordRecovery(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{sMessage: config.SUserPasswordUpdated})
 }
 
+// getUserByContext load the user from the db (via gin context)
 func getUserByContext(c *gin.Context) (*model.User, error) {
 	cl := jwtapple2.ExtractClaims(c)
 
@@ -175,17 +185,6 @@ func getUserWithPasswordByContext(c *gin.Context) (*model.User, error) {
 	}
 
 	return &u, nil
-}
-
-func emailCheck(email string) error {
-	var u model.User
-	config.GetDB().First(&u, "email = ?", email)
-
-	if u.ID > 0 {
-		return errors.New(config.SUserEmailAlreadyExists)
-	}
-
-	return nil
 }
 
 // UpdatePasswordObj is the object containing the update password data
