@@ -9,6 +9,8 @@ import (
 var (
 	// URL application url
 	URL = os.Getenv("URL")
+	// FrontURL is the url of the front-end
+	FrontURL = os.Getenv("FRONT_URL")
 )
 
 // General Const
@@ -109,8 +111,9 @@ const (
 	STaskUnauthorized = "Task Unauthorized"
 )
 
+// BuildConfirmEmail builds the email to send for user confirmation
 func BuildConfirmEmail(user *model.User, smtpUsername string) []byte {
-	var link string = URL + "auth/confirm?email=" + user.Email + "&token=" + user.VerifyToken
+	var link string = FrontURL + "auth/confirm?email=" + user.Email + "&token=" + user.VerifyToken
 
 	return []byte("To: " + user.Email + "\r\n" +
 		"From: " + smtpUsername + "\r\n" +
@@ -123,8 +126,9 @@ func BuildConfirmEmail(user *model.User, smtpUsername string) []byte {
 		"The todoAPI team\r\n")
 }
 
+// BuildPasswordRecovery build the password recovery email
 func BuildPasswordRecovery(user *model.User, smtpUsername string) []byte {
-	var link string = URL + "auth/executePasswordRecovery?email=" + user.Email + "&token=" + user.VerifyToken
+	var link string = FrontURL + "auth/executePasswordRecovery?email=" + user.Email + "&token=" + user.VerifyToken
 
 	return []byte("To: " + user.Email + "\r\n" +
 		"From: " + smtpUsername + "\r\n" +

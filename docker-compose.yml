@@ -13,6 +13,7 @@ services:
       - 8080:8080
     environment:
       URL: "http://localhost:8080/"
+      FORNT_URL: "http://localhost:4200"
       SMTP_SERVER: "mail.example.com"
       SMTP_PORT: "25"
       SMTP_USERNAME: "mail@example.com"
